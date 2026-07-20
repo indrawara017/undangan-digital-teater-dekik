@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FloatingAudioPlayer } from '../components/FloatingAudioPlayer';
+import { Countdown } from '../components/Countdown';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { MapPin, CalendarDays, Clock, Ticket } from 'lucide-react';
@@ -311,6 +312,16 @@ function PreviewContent() {
               </p>
             </div>
           </motion.div>
+
+          {/* Countdown Timer */}
+          {eventData.date && (
+            <motion.div
+              variants={premiumFadeIn}
+              className="w-full flex justify-center mt-2"
+            >
+              <Countdown targetDate={eventData.date} />
+            </motion.div>
+          )}
         </motion.div>
         
         {/* Scroll Indicator */}

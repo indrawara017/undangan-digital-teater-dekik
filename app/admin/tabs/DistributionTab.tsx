@@ -54,16 +54,40 @@ export function DistributionTab({
     const success = await ensureInvited(guest.id);
     if (!success) return;
     const url = `${window.location.origin}/${guest.slug}-${getEventSlug()}`;
-    const text = `*UNDANGAN EKSKLUSIF TEATER DEKIK* 🎭
+    
+    let text = '';
+    
+    if (guest.category === 'Teater') {
+      // Komunitas / Teater Lain
+      text = `*UNDANGAN PEMENTASAN TEATER DEKIK* 🎭
 
 Halo *${guest.name}*,
-Kami dengan bangga mengundang Anda untuk hadir dalam pementasan Teater Dekik.
 
-Untuk melihat detail acara, waktu, lokasi, dan melakukan konfirmasi kehadiran (mendapatkan e-Tiket), silakan buka tautan undangan digital eksklusif Anda berikut ini:
+Kami mengundang Anda dan tim untuk hadir dalam pementasan terbaru kami — sebuah karya yang lahir dari proses panjang dan kolaborasi.
 
+Kami percaya, kehadiran sesama pegiat teater akan memperkaya diskusi dan apresiasi karya ini.
+
+📍 Detail acara, lokasi, dan konfirmasi kehadiran (e-Tiket):
 👉 ${url}
 
-Kami sangat menantikan kehadiran Anda di panggung kami!`;
+Bersatu bersama dan terus berkarya, Teater Dekik Jaya! 🎭`;
+    } else {
+      // Alumni
+      const sapaan = guest.gender === 'Perempuan' ? 'Mbak' : 'Mas';
+      text = `*UNDANGAN TEATER DEKIK* 🎭
+
+Halo ${sapaan} *${guest.name}*,
+
+Kabar baik dari rumah kita dulu! Teater Dekik kembali naik panggung, dan sebagai bagian dari sejarah kami, kehadiran ${sapaan} akan sangat berarti bagi kami.
+
+Yuk, lihat lagi karya-karya adik-adik yang meneruskan semangat ${sapaan} dulu.
+
+📍 Detail acara, lokasi, dan konfirmasi kehadiran (e-Tiket):
+👉 ${url}
+
+Bersatu bersama dan terus berkarya, Teater Dekik Jaya! 🎭`;
+    }
+
     const whatsappUrl = `https://wa.me/${guest.whatsapp}?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, '_blank');
   };

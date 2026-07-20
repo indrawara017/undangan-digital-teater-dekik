@@ -9,7 +9,7 @@ import { Edit2, Trash2, Plus, X, Filter, Search } from 'lucide-react';
 import { CustomSelect } from '@/app/components/CustomSelect';
 
 export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () => void }) {
-  const [guestForm, setGuestForm] = useState({ name: '', whatsapp: '', category: 'Alumni' });
+  const [guestForm, setGuestForm] = useState({ name: '', whatsapp: '', category: 'Alumni', gender: 'Laki-laki' });
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
@@ -29,12 +29,13 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
       const { error } = await supabase.from('guests').update({ 
         name: guestForm.name, 
         whatsapp: wa,
-        category: guestForm.category
+        category: guestForm.category,
+        gender: guestForm.category === 'Teater' ? null : guestForm.gender
       }).eq('id', editingGuest.id);
       if (error) alert(error.message);
       else { 
         setEditingGuest(null); 
-        setGuestForm({ name: '', whatsapp: '', category: 'Alumni' }); 
+        setGuestForm({ name: '', whatsapp: '', category: 'Alumni', gender: 'Laki-laki' }); 
         setIsModalOpen(false);
         fetchData(); 
       }
@@ -52,11 +53,12 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
         name: guestForm.name, 
         whatsapp: wa, 
         slug: finalSlug,
-        category: guestForm.category
+        category: guestForm.category,
+        gender: guestForm.category === 'Teater' ? null : guestForm.gender
       }]);
       if (error) alert(error.message);
       else { 
-        setGuestForm({ name: '', whatsapp: '', category: 'Alumni' }); 
+        setGuestForm({ name: '', whatsapp: '', category: 'Alumni', gender: 'Laki-laki' }); 
         setIsModalOpen(false);
         fetchData(); 
       }
@@ -79,13 +81,13 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
 
   const openAddModal = () => {
     setEditingGuest(null);
-    setGuestForm({ name: '', whatsapp: '', category: 'Alumni' });
+    setGuestForm({ name: '', whatsapp: '', category: 'Alumni', gender: 'Laki-laki' });
     setIsModalOpen(true);
   };
 
   const openEditModal = (g: any) => {
     setEditingGuest(g);
-    setGuestForm({ name: g.name, whatsapp: g.whatsapp || '', category: g.category || 'Alumni' });
+    setGuestForm({ name: g.name, whatsapp: g.whatsapp || '', category: g.category || 'Alumni', gender: g.gender || 'Laki-laki' });
     setIsModalOpen(true);
   };
 
@@ -161,15 +163,16 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-800 text-neutral-400 bg-black/50">
-                <th className="p-4 font-medium w-1/4">Nama</th>
-                <th className="p-4 font-medium w-1/4">Kategori</th>
-                <th className="p-4 font-medium w-1/4">WhatsApp</th>
-                <th className="p-4 font-medium w-1/4">Aksi</th>
+                <th className="p-4 font-medium">Nama</th>
+                <th className="p-4 font-medium">Kategori</th>
+                <th className="p-4 font-medium">Gender</th>
+                <th className="p-4 font-medium">WhatsApp</th>
+                <th className="p-4 font-medium">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-800/50">
               {filteredGuests.length === 0 && (
-                <tr><td colSpan={4} className="p-8 text-center text-neutral-500">Belum ada data tamu untuk kategori ini.</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-neutral-500">Belum ada data tamu untuk kategori ini.</td></tr>
               )}
               {filteredGuests.map((g) => (
                 <tr key={g.id} className="hover:bg-neutral-800/30 transition-colors">
@@ -179,6 +182,7 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
                       {g.category || 'Alumni'}
                     </span>
                   </td>
+                  <td className="p-4 text-neutral-400">{g.category === 'Teater' ? '-' : (g.gender || '-')}</td>
                   <td className="p-4 text-neutral-400">{g.whatsapp || '-'}</td>
                   <td className="p-4 flex gap-2">
                     <Button 
@@ -290,6 +294,19 @@ export function GuestsTab({ guests, fetchData }: { guests: any[], fetchData: () 
                   />
                 </div>
               </div>
+
+              {guestForm.category === 'Alumni' && (
+                <div className="space-y-1.5">
+                  <label className="text-sm text-neutral-400 font-medium block">Gender</label>
+                  <div className="relative w-full">
+                    <CustomSelect 
+                      value={guestForm.gender}
+                      onChange={(val) => setGuestForm({...guestForm, gender: val})}
+                      options={[{value: 'Laki-laki', label: 'Laki-laki'}, {value: 'Perempuan', label: 'Perempuan'}]}
+                    />
+                  </div>
+                </div>
+              )}
               
               <div className="flex gap-3 pt-4 border-t border-neutral-800 mt-2">
                 <Button type="button" variant="outline" onClick={closeModal} className="flex-1">

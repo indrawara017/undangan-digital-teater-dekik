@@ -7,6 +7,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { MapPin, CalendarDays, Clock, Ticket } from 'lucide-react';
 import { FullScreenLoader } from '@/app/components/Loader';
 import { FloatingAudioPlayer } from '../components/FloatingAudioPlayer';
+import { Countdown } from '../components/Countdown';
 
 const premiumStagger: Variants = {
   hidden: { opacity: 0 },
@@ -326,6 +327,17 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
               </p>
             </div>
           </motion.div>
+
+
+          {/* Countdown Timer */}
+          {eventData.date && (
+            <motion.div
+              variants={premiumFadeIn}
+              className="w-full flex justify-center mt-2"
+            >
+              <Countdown targetDate={eventData.date} />
+            </motion.div>
+          )}
         </motion.div>
         
         {/* Scroll Indicator */}
