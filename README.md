@@ -66,6 +66,17 @@ Buka aplikasi di `http://localhost:3000`.
 
 ---
 
+## 📂 Struktur Proyek
+Berikut adalah gambaran singkat struktur folder pada repositori ini:
+
+- `app/[slug]/` — Halaman klien utama (Front-end untuk para tamu).
+- `app/admin/` — Seluruh halaman Dasbor Admin (Events, Guests, RSVP, Design, Distribution).
+- `app/components/` — Komponen UI yang dapat digunakan kembali (*reusable*).
+- `lib/` — Berisi konfigurasi dan inisialisasi koneksi klien Supabase.
+- `public/` — Tempat penyimpanan gambar atau aset publik lokal (seperti `preview.png`).
+
+---
+
 ## 👨‍💻 Kontributor / Pengembang
 Pengembangan (*Development*) oleh **Indra Wardana**.
 
