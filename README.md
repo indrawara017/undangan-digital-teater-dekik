@@ -66,25 +66,6 @@ Buka aplikasi di `http://localhost:3000`.
 
 ---
 
-## 🗄️ Database & Storage (Supabase)
-
-Agar aplikasi dapat berjalan sempurna, Anda harus memastikan tabel dan keranjang (bucket) *storage* sudah terkonfigurasi. 
-
-**Persyaratan Tabel SQL:**
-- `events` (Kolom: id, title, date, location, gmaps_url, is_audio_enabled, **creator**)
-- `guests` (Kolom: id, name, slug, whatsapp, category)
-- `invitations` (Kolom: id, event_id, guest_id, rsvp_status)
-
-**PENTING: Eksekusi SQL ini jika tabel `events` Anda belum memiliki kolom `creator`:**
-```sql
-ALTER TABLE events ADD COLUMN creator TEXT;
-```
-
-**Persyaratan Storage Bucket:**
-- Buat sebuah *public bucket* bernama `assets` di Supabase untuk menampung seluruh unggahan gambar dan audio.
-
----
-
 ## 👨‍💻 Kontributor / Pengembang
 Pengembangan (*Development*) oleh **Indra Wardana**.
 
