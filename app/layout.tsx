@@ -1,29 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cinzel, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/global/app-logo.png`;
 
 export const metadata: Metadata = {
   title: "Undangan Digital Teater Dekik",
-  description: "Undangan Eksklusif Teater Dekik",
+  description: "Undangan Digital Teater Dekik",
   icons: {
     icon: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/global/favicon.png?v=update`,
   },
   openGraph: {
     title: "Undangan Digital Teater Dekik",
-    description: "Undangan Eksklusif Pementasan Teater Dekik",
+    description: "Pementasan Teater Dekik — undangan-dekik.vercel.app",
     url: "https://undangan-dekik.vercel.app",
     siteName: "Teater Dekik",
     images: [
@@ -54,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${cormorant.variable} ${inter.variable} h-full antialiased dark overscroll-none`}
+      className={`${cinzel.variable} ${jakarta.variable} h-full antialiased dark overscroll-none`}
     >
       <body className="min-h-full flex flex-col bg-black text-white selection:bg-neutral-800 selection:text-white overscroll-none">
         {children}
