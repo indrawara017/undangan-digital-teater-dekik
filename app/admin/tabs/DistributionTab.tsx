@@ -54,8 +54,18 @@ export function DistributionTab({
     const success = await ensureInvited(guest.id);
     if (!success) return;
     const url = `${window.location.origin}/${guest.slug}-${getEventSlug()}`;
-    const text = `Halo ${guest.name}, ini adalah undangan resmi Anda untuk pementasan Teater Dekik. Silakan buka link berikut: ${url}`;
-    window.open(`https://wa.me/${guest.whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
+    const text = `*UNDANGAN EKSKLUSIF TEATER DEKIK* 🎭
+
+Halo *${guest.name}*,
+Kami dengan bangga mengundang Anda untuk hadir dalam pementasan Teater Dekik.
+
+Untuk melihat detail acara, waktu, lokasi, dan melakukan konfirmasi kehadiran (mendapatkan e-Tiket), silakan buka tautan undangan digital eksklusif Anda berikut ini:
+
+👉 ${url}
+
+Kami sangat menantikan kehadiran Anda di panggung kami!`;
+    const whatsappUrl = `https://wa.me/${guest.whatsapp}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const [filterCategory, setFilterCategory] = useState<string>('Semua');

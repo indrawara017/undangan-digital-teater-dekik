@@ -228,13 +228,13 @@ function PreviewContent() {
           <div className="absolute inset-0 z-0">
             <motion.div 
               initial={{ scale: 1.1, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.3 }}
+              animate={{ scale: 1, opacity: 0.7 }}
               transition={{ duration: 4, ease: 'easeOut' }}
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{ backgroundImage: `url(${bgUrl})` }}
             />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] opacity-80 pointer-events-none" />
-            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] opacity-60 pointer-events-none" />
+            <div className="absolute inset-0 bg-black/30 pointer-events-none" />
           </div>
 
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-0 pointer-events-none" />
@@ -647,18 +647,31 @@ function PreviewContent() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setZoomedImage(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 cursor-zoom-out backdrop-blur-lg"
+            className="fixed inset-0 z-[100] bg-black/95 p-2 md:p-6 cursor-zoom-out backdrop-blur-lg overflow-auto flex items-center justify-center"
+            style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
           >
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              src={zoomedImage}
-              alt="Zoomed"
-              className="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl"
-            />
-            <button className="absolute top-6 right-6 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-2 backdrop-blur-md transition-colors">
+            <motion.div 
+              className="relative w-full h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <motion.img
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                src={zoomedImage}
+                alt="Zoomed"
+                drag
+                dragConstraints={{ left: -300, right: 300, top: -300, bottom: 300 }}
+                dragElastic={0.5}
+                className="max-w-full max-h-[90vh] object-contain rounded-md shadow-2xl cursor-grab active:cursor-grabbing"
+              />
+            </motion.div>
+            
+            <button 
+              onClick={() => setZoomedImage(null)}
+              className="fixed top-6 right-6 text-white/50 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-3 backdrop-blur-md transition-colors z-[101]"
+            >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </motion.div>
