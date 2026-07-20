@@ -271,7 +271,7 @@ export function EventsTab({ events, fetchData }: { events: any[], fetchData: () 
                             const d = new Date(eventForm.date);
                             return isNaN(d.getTime()) ? null : d;
                           })()}
-                          onChange={(date) => {
+                          onChange={(date: Date | null) => {
                             if (date) {
                               const existing = eventForm.date ? new Date(eventForm.date) : new Date();
                               if (isNaN(existing.getTime())) {

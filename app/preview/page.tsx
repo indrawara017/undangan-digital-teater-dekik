@@ -4,11 +4,11 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { FloatingAudioPlayer } from '../components/FloatingAudioPlayer';
 import { supabase } from '@/lib/supabase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { MapPin, CalendarDays, Clock, Ticket } from 'lucide-react';
 import { FullScreenLoader } from '@/app/components/Loader';
 
-const premiumStagger = {
+const premiumStagger: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -16,7 +16,7 @@ const premiumStagger = {
   }
 };
 
-const premiumFadeIn = {
+const premiumFadeIn: Variants = {
   hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
   visible: { 
     opacity: 1, 
@@ -26,7 +26,7 @@ const premiumFadeIn = {
   }
 };
 
-const premiumScaleIn = {
+const premiumScaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
   visible: {
     opacity: 1,
@@ -220,7 +220,7 @@ function PreviewContent() {
 
   return (
     <div className="bg-black text-white min-h-screen selection:bg-neutral-800 relative">
-      {wantsMusic && <FloatingAudioPlayer eventId={eventId} autoPlay={true} />}
+      {wantsMusic && <FloatingAudioPlayer audioUrl={getAssetUrl('music.mp3?t=' + audioTimestamp)} autoPlay={true} />}
 
       <div className="relative z-10">
         <main className="relative min-h-screen w-full overflow-hidden flex flex-col items-center justify-center">

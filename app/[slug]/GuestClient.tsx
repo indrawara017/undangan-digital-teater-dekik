@@ -3,12 +3,12 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { MapPin, CalendarDays, Clock, Ticket } from 'lucide-react';
 import { FullScreenLoader } from '@/app/components/Loader';
 import { FloatingAudioPlayer } from '../components/FloatingAudioPlayer';
 
-const premiumStagger = {
+const premiumStagger: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -16,7 +16,7 @@ const premiumStagger = {
   }
 };
 
-const premiumFadeIn = {
+const premiumFadeIn: Variants = {
   hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
   visible: { 
     opacity: 1, 
@@ -26,7 +26,7 @@ const premiumFadeIn = {
   }
 };
 
-const premiumScaleIn = {
+const premiumScaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
   visible: {
     opacity: 1,
