@@ -1,0 +1,3 @@
+ALTER TABLE events 
+ADD COLUMN IF NOT EXISTS is_audio_enabled BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS audio_url TEXT;
