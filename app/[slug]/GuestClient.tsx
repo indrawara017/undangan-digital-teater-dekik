@@ -302,7 +302,9 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
             variants={premiumFadeIn}
             className="flex flex-col items-center justify-center gap-2 mb-8 text-center px-4 w-full"
           >
-            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-neutral-400 text-center w-full">Kepada Yth. Bapak/Ibu/Saudara/i</span>
+            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-neutral-400 text-center w-full">
+              {guest.category === 'Teater' ? 'Kepada' : guest.gender === 'Perempuan' ? 'Kepada Yth. Saudari' : 'Kepada Yth. Saudara'}
+            </span>
             <span className="text-xl md:text-2xl font-cormorant font-medium text-white text-center w-full">{guest.name}</span>
           </motion.div>
 
