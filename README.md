@@ -2,7 +2,8 @@
 
 Aplikasi web modern (berbasis Next.js) untuk manajemen, kustomisasi visual, dan penyebaran undangan digital khusus pementasan teater. Sistem ini mengombinasikan tampilan undangan (klien) yang interaktif nan premium dengan dasbor administrasi (admin) yang sangat komprehensif. Terintegrasi penuh dengan **Supabase** untuk basis data (PostgreSQL) dan penyimpanan aset (Storage).
 
-![Undangan Digital Teater Dekik Preview](public/preview.png) *(Opsional: Tambahkan screenshot aplikasi Anda di dalam folder public dengan nama preview.png)*
+![Undangan Digital Teater Dekik Preview](public/preview.png)
+![Tampilan Login Admin](public/preview-login.png)
 
 ## ✨ Fitur Utama
 
