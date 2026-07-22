@@ -43,7 +43,7 @@ export function MultiImageUpload({ eventId, folderName, title, icon }: MultiImag
     const safeName = baseName.replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 30) || 'image'; 
     const filePath = `${eventId}/${folderName}/${safeName}---${Date.now()}.${ext}`;
     
-    const { error } = await supabase.storage.from('assets').upload(filePath, file, { cacheControl: '0' });
+    const { error } = await supabase.storage.from('assets').upload(filePath, file, { cacheControl: '3600' });
     if (error) alert(`Gagal mengunggah ${title}: ` + error.message);
     else {
       fetchItems();
@@ -87,7 +87,7 @@ export function MultiImageUpload({ eventId, folderName, title, icon }: MultiImag
     const ext = file.name.split('.').pop();
     const newFileName = `${newNameSafe}---${Date.now()}.${ext}`;
     
-    const { error: uploadError } = await supabase.storage.from('assets').upload(`${eventId}/${folderName}/${newFileName}`, file, { cacheControl: '0' });
+    const { error: uploadError } = await supabase.storage.from('assets').upload(`${eventId}/${folderName}/${newFileName}`, file, { cacheControl: '3600' });
     if (uploadError) {
       alert('Gagal mengganti gambar: ' + uploadError.message);
     } else {

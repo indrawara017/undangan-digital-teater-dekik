@@ -4,7 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { MapPin, CalendarDays, Clock, Ticket } from 'lucide-react';
+import { MapPin, CalendarDays, Clock, Ticket, ShieldCheck, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { FullScreenLoader } from '@/app/components/Loader';
 import { FloatingAudioPlayer } from '../components/FloatingAudioPlayer';
 import { Countdown } from '../components/Countdown';
@@ -50,7 +51,9 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   
   const [rsvpStatus, setRsvpStatus] = useState(invitation?.rsvp_status || null);
+  const [isChangingRsvp, setIsChangingRsvp] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const isCheckedIn = !!invitation?.checked_in;
 
   useEffect(() => {
     if (sponsors.length > 3) {
@@ -74,6 +77,7 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
     
     if (!error) {
       setRsvpStatus(status);
+      setIsChangingRsvp(false);
     }
     setIsUpdating(false);
   };
@@ -152,22 +156,29 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
 
   // Welcome / Cover Screen
   if (!isCoverOpened) {
+    const tagline = "Bersatu Bersama dan Terus Berkarya".split(" ");
+    const brandName = "Teater Dekik Jaya";
+
     return (
       <motion.div 
         key="cover"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-white"
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-white overflow-hidden"
       >
-        <div className="absolute inset-0 bg-black" />
-        <div className="relative z-10 flex flex-col items-center text-center gap-6 px-6 max-w-lg mb-8">
+        {/* Subtle background glow */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a1a_0%,transparent_70%)]" />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center text-center gap-4 px-6 max-w-lg">
           
           {/* LOGOS ON WELCOME SCREEN */}
           {logos.length > 0 && (
             <motion.div 
-              initial={{ y: 20, opacity: 0 }} 
-              animate={{ y: 0, opacity: 1 }} 
-              transition={{ delay: 0.2 }}
-              className="flex flex-wrap items-center justify-center gap-4 mb-2"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ delay: 0.2, duration: 1 }}
+              className="flex flex-wrap items-center justify-center gap-4 mb-4"
             >
               {logos.map((logo) => (
                 <img 
@@ -180,17 +191,55 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
             </motion.div>
           )}
 
-          <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-xs tracking-[0.3em] uppercase text-neutral-400">
-            Selamat Datang di
-          </motion.p>
-          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="font-cormorant text-3xl md:text-4xl text-white drop-shadow-xl leading-snug">
-            Undangan Digital<br/>Teater Dekik
-          </motion.h1>
-          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.7 }} className="w-16 h-px bg-white/30 my-4" />
-          
+          {/* Tagline - word by word reveal */}
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+            {tagline.map((word, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ delay: 0.3 + i * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="text-sm md:text-base tracking-[0.25em] uppercase text-neutral-400 font-light"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </div>
+
+          {/* Decorative line */}
           <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1 }}
-            className="flex flex-col w-full sm:w-auto gap-3"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ delay: 1.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="w-24 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent my-2"
+          />
+
+          {/* Brand name - dramatic reveal */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30, letterSpacing: '0.5em', filter: 'blur(12px)' }}
+            animate={{ opacity: 1, y: 0, letterSpacing: '0.15em', filter: 'blur(0px)' }}
+            transition={{ delay: 1.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="font-cormorant text-4xl md:text-5xl lg:text-6xl font-semibold text-white drop-shadow-2xl leading-tight"
+          >
+            {brandName}
+          </motion.h1>
+
+          {/* Emoji accent */}
+          <motion.span
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 2.5, duration: 0.6, type: 'spring', stiffness: 200 }}
+            className="text-2xl mt-1"
+          >
+            🎭
+          </motion.span>
+
+          {/* Buttons - appear last */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col w-full sm:w-auto gap-3 mt-6"
           >
             <button 
               onClick={() => { setWantsMusic(eventData?.is_audio_enabled !== false); setIsCoverOpened(true); }}
@@ -381,11 +430,11 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
         </motion.div>
         <motion.div variants={premiumScaleIn} className="flex-1 w-full max-w-[220px] md:max-w-[280px] mx-auto">
           <div 
-            onClick={() => setZoomedImage(`${getAssetUrl('design.jpg')}?t=${Date.now()}`)}
+            onClick={() => setZoomedImage(getAssetUrl('design.jpg'))}
             className="block aspect-[9/16] relative group cursor-zoom-in"
           >
             <img 
-              src={`${getAssetUrl('design.jpg')}?t=${Date.now()}`} 
+              src={getAssetUrl('design.jpg')} 
               alt="Poster" 
               className="w-full h-full object-cover rounded-lg opacity-80 group-hover:opacity-100 transition-all duration-500"
               onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1507676184212-d0330a151f84?q=80&w=800&auto=format&fit=crop' }}
@@ -423,10 +472,10 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
           {!ticketError ? (
             <div 
               className="relative group cursor-zoom-in"
-              onClick={() => setZoomedImage(`${ticketUrl}?t=${Date.now()}`)}
+              onClick={() => setZoomedImage(ticketUrl)}
             >
               <img 
-                src={`${ticketUrl}?t=${Date.now()}`} 
+                src={ticketUrl} 
                 alt="Desain Tiket" 
                 className="w-full aspect-[16/9] object-cover rounded-lg shadow-2xl drop-shadow-[0_0_30px_rgba(255,255,255,0.05)] opacity-80 group-hover:opacity-100 transition-all duration-500"
                 onError={() => setTicketError(true)}
@@ -512,55 +561,157 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
         </div>
       </motion.section>
 
-      {/* SECTION 4: RSVP PREVIEW */}
+      {/* SECTION 4: RSVP PREVIEW & E-TIKET QR CODE */}
       <motion.section 
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15, margin: "0px 0px -100px 0px" }}
         variants={premiumStagger}
-        className="relative py-32 px-6 max-w-2xl mx-auto text-center space-y-12"
+        className="relative py-32 px-6 max-w-2xl mx-auto text-center space-y-10"
       >
         <motion.div variants={premiumFadeIn}>
-          <h2 className="font-cormorant text-4xl md:text-5xl text-neutral-200 mb-4">Konfirmasi Kehadiran</h2>
+          <h2 className="font-cormorant text-4xl md:text-5xl text-neutral-200 mb-4">
+            {rsvpStatus === 'attending' && !isChangingRsvp ? 'E-Tiket Masuk Anda' : 'Konfirmasi Kehadiran'}
+          </h2>
           <p className="text-neutral-400 text-sm md:text-base font-light">
-            Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir dan menyaksikan pementasan ini.
+            {rsvpStatus === 'attending' && !isChangingRsvp 
+              ? 'Terima kasih! Tiket resmi pementasan Anda telah terbit di bawah ini.' 
+              : 'Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir dan menyaksikan pementasan ini.'}
           </p>
         </motion.div>
         
-        <motion.div variants={premiumFadeIn} className="p-8 border border-neutral-800 bg-neutral-900/30 rounded-xl space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button 
-              onClick={() => handleRSVP('attending')}
-              disabled={isUpdating}
-              className={`px-6 py-4 border rounded-sm uppercase tracking-wider text-xs font-medium transition-all duration-300 ${
-                rsvpStatus === 'attending' 
-                  ? 'bg-emerald-700 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' 
-                  : 'border-emerald-800 text-emerald-500 bg-emerald-950/30'
-              }`}
-            >
-              {isUpdating && rsvpStatus !== 'attending' ? 'Memproses...' : 'Saya Akan Hadir'}
-            </button>
-            <button 
-              onClick={() => handleRSVP('declined')}
-              disabled={isUpdating}
-              className={`px-6 py-4 border rounded-sm uppercase tracking-wider text-xs font-medium transition-all duration-300 ${
-                rsvpStatus === 'declined' 
-                  ? 'bg-rose-700 border-rose-500 text-white shadow-[0_0_20px_rgba(225,29,72,0.4)]' 
-                  : 'border-rose-800 text-rose-500 bg-rose-950/30'
-              }`}
-            >
-              Maaf, Tidak Hadir
-            </button>
-          </div>
-          
-          {rsvpStatus && (
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 text-xs text-neutral-500 font-medium tracking-widest uppercase"
-            >
-              Status: {rsvpStatus === 'attending' ? 'Hadir' : 'Tidak Hadir'}
-            </motion.p>
+        <motion.div variants={premiumFadeIn}>
+          {rsvpStatus === 'attending' && !isChangingRsvp ? (
+            /* E-TIKET DIGITAL PASS CARD */
+            <div className="border border-neutral-800 bg-neutral-950/80 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden text-center">
+              <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+              
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-neutral-800/80 pb-4">
+                <div className="text-center sm:text-left">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-400 font-semibold">Teater Dekik • E-Tiket Masuk</p>
+                  <h3 className="font-cormorant text-2xl font-medium text-white mt-0.5">{eventData.title}</h3>
+                </div>
+                <div>
+                  {isCheckedIn ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold bg-emerald-950 text-emerald-400 border border-emerald-600/50 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Sudah Check-In
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> E-Tiket Aktif
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* QR Code Container */}
+              <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-inner my-4 max-w-xs mx-auto">
+                <QRCodeSVG 
+                  value={JSON.stringify({ invId: invitation.id, guestId: guest.id })} 
+                  size={180} 
+                  bgColor="#ffffff" 
+                  fgColor="#000000" 
+                  level="H" 
+                />
+                <p className="text-[10px] font-mono text-neutral-600 mt-3 tracking-widest uppercase">
+                  ID: DEKIK-{invitation.id.slice(0, 8).toUpperCase()}
+                </p>
+              </div>
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-4 text-left border-t border-b border-neutral-800/80 py-4 text-xs">
+                <div>
+                  <p className="text-neutral-500 text-[10px] uppercase tracking-wider">Nama Tamu</p>
+                  <p className="font-semibold text-white text-sm mt-0.5">{guest.name}</p>
+                </div>
+                <div>
+                  <p className="text-neutral-500 text-[10px] uppercase tracking-wider">Kategori</p>
+                  <p className="font-medium text-neutral-300 mt-0.5">{guest.category || 'Tamu Undangan'}</p>
+                </div>
+                <div>
+                  <p className="text-neutral-500 text-[10px] uppercase tracking-wider">Waktu Pementasan</p>
+                  <p className="font-medium text-neutral-300 mt-0.5">{eventData.date ? formatIndonesianDate(eventData.date) : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-neutral-500 text-[10px] uppercase tracking-wider">Lokasi</p>
+                  <p className="font-medium text-neutral-300 mt-0.5 line-clamp-1">{eventData.location || '-'}</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-neutral-400 font-light">
+                Tunjukkan QR Code di atas kepada panitia saat tiba di lokasi pementasan.
+              </p>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsChangingRsvp(true)}
+                  className="text-xs text-neutral-500 hover:text-neutral-300 underline tracking-wider transition-colors"
+                >
+                  Ingin mengubah konfirmasi kehadiran?
+                </button>
+              </div>
+            </div>
+          ) : rsvpStatus === 'declined' && !isChangingRsvp ? (
+            /* DECLINED CARD WITH RE-CONFIRM OPTION */
+            <div className="border border-neutral-800 bg-neutral-950/80 rounded-2xl p-6 md:p-8 space-y-6 text-center shadow-xl">
+              <div className="w-12 h-12 rounded-full bg-rose-950/60 border border-rose-800/50 flex items-center justify-center mx-auto text-rose-400">
+                <XCircle className="w-6 h-6" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium text-white">Terima Kasih atas Konfirmasinya</h3>
+                <p className="text-xs text-neutral-400 max-w-md mx-auto font-light leading-relaxed">
+                  Kami memahami Anda berhalangan hadir. Semoga kita dapat berjumpa di pementasan Teater Dekik berikutnya.
+                </p>
+              </div>
+              <div className="pt-2">
+                <button
+                  onClick={() => handleRSVP('attending')}
+                  disabled={isUpdating}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-xs text-white uppercase tracking-wider font-semibold transition-all shadow-md"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>{isUpdating ? 'Memproses...' : 'Berubah Pikiran? Konfirmasi Hadir'}</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* RSVP INITIAL CHOICE BUTTONS */
+            <div className="p-8 border border-neutral-800 bg-neutral-900/30 rounded-xl space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button 
+                  onClick={() => handleRSVP('attending')}
+                  disabled={isUpdating}
+                  className={`px-6 py-4 border rounded-sm uppercase tracking-wider text-xs font-medium transition-all duration-300 ${
+                    rsvpStatus === 'attending' 
+                      ? 'bg-emerald-700 border-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]' 
+                      : 'border-emerald-800 text-emerald-500 bg-emerald-950/30 hover:bg-emerald-900/40'
+                  }`}
+                >
+                  {isUpdating && rsvpStatus !== 'attending' ? 'Memproses...' : 'Saya Akan Hadir'}
+                </button>
+                <button 
+                  onClick={() => handleRSVP('declined')}
+                  disabled={isUpdating}
+                  className={`px-6 py-4 border rounded-sm uppercase tracking-wider text-xs font-medium transition-all duration-300 ${
+                    rsvpStatus === 'declined' 
+                      ? 'bg-rose-700 border-rose-500 text-white shadow-[0_0_20px_rgba(225,29,72,0.4)]' 
+                      : 'border-rose-800 text-rose-500 bg-rose-950/30 hover:bg-rose-900/40'
+                  }`}
+                >
+                  {isUpdating && rsvpStatus !== 'declined' ? 'Memproses...' : 'Maaf, Tidak Hadir'}
+                </button>
+              </div>
+              
+              {rsvpStatus && (
+                <button
+                  onClick={() => setIsChangingRsvp(false)}
+                  className="mt-4 text-xs text-neutral-500 hover:text-neutral-300 underline tracking-wider"
+                >
+                  Batal Mengubah Status
+                </button>
+              )}
+            </div>
           )}
         </motion.div>
       </motion.section>
@@ -691,7 +842,7 @@ export default function GuestClient({ guest, invitation, event: eventData, bucke
 
       {/* Floating Audio Player */}
       {eventData?.is_audio_enabled !== false && (
-        <FloatingAudioPlayer audioUrl={`${bucketUrl}/music.mp3?t=${audioTimestamp}`} autoPlay={wantsMusic} />
+        <FloatingAudioPlayer audioUrl={`${bucketUrl}/music.mp3`} autoPlay={wantsMusic} />
       )}
 
       {/* Lightbox Modal */}

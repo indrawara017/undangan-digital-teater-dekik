@@ -23,7 +23,7 @@ export function DesignTab({ events, selectedEventId, setSelectedEventId, fetchDa
     if (!file || !selectedEventId) return;
     setUploadingImage(fileName);
     const filePath = `${selectedEventId}/${fileName}`;
-    const { error } = await supabase.storage.from('assets').upload(filePath, file, { upsert: true, cacheControl: '0' });
+    const { error } = await supabase.storage.from('assets').upload(filePath, file, { upsert: true, cacheControl: '3600' });
     if (error) alert('Gagal mengunggah: ' + error.message);
     else alert(`${fileName} berhasil diperbarui untuk event ini!`);
     setUploadingImage(null);

@@ -36,7 +36,7 @@ export function ConfigTab() {
     const file = new Blob([JSON.stringify(config)], { type: 'application/json' });
     const { error } = await supabase.storage.from('assets').upload('global/config.json', file, { 
       upsert: true, 
-      cacheControl: '0' 
+      cacheControl: '300' 
     });
     
     if (error) alert('Gagal menyimpan pengaturan: ' + error.message);
@@ -52,7 +52,7 @@ export function ConfigTab() {
     
     const { error } = await supabase.storage.from('assets').upload('global/app-logo.png', file, { 
       upsert: true, 
-      cacheControl: '0' 
+      cacheControl: '3600' 
     });
     
     if (error) alert('Gagal mengunggah logo: ' + error.message);
@@ -68,7 +68,7 @@ export function ConfigTab() {
     
     const { error } = await supabase.storage.from('assets').upload('global/favicon.png', file, { 
       upsert: true, 
-      cacheControl: '0' 
+      cacheControl: '3600' 
     });
     
     if (error) alert('Gagal mengunggah favicon: ' + error.message);
