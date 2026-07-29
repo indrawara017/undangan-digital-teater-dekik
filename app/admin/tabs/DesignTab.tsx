@@ -6,6 +6,7 @@ import { Image as ImageIcon, UploadCloud, Layout, Eye, Music, Power } from 'luci
 import { Button } from '../components/ui/Button';
 import { MultiImageUpload } from '../components/MultiImageUpload';
 import { CustomSelect } from '@/app/components/CustomSelect';
+import { EventCastAssigner } from '../components/EventCastAssigner';
 
 export function DesignTab({ events, selectedEventId, setSelectedEventId, fetchData }: { 
   events: any[], 
@@ -210,7 +211,10 @@ export function DesignTab({ events, selectedEventId, setSelectedEventId, fetchDa
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Cast & Crew per Event */}
+          <EventCastAssigner eventId={selectedEventId} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="h-[450px] md:h-[600px]">
               <MultiImageUpload 
                 eventId={selectedEventId} 

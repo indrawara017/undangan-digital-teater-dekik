@@ -2,14 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Settings, Image as ImageIcon, UploadCloud, Save } from 'lucide-react';
+import { Settings, Image as ImageIcon, UploadCloud, Save, Users } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { CustomSelect } from '@/app/components/CustomSelect';
+import { CastMasterManager } from '../components/CastMasterManager';
 
-export function ConfigTab() {
+export function ConfigTab({ events = [] }: { events?: any[] }) {
+  const [activeTab, setActiveTab] = useState<'system' | 'cast'>('system');
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (events && events.length > 0 && !selectedEventId) {
+      setSelectedEventId(events[0].id);
+    }
+  }, [events]);
   
   const [config, setConfig] = useState({
+    showSynopsis: true,
+    showTicketPamflet: true,
+    showCast: true,
+    showTrailer: true,
+    showLocationMap: true,
+    showRSVP: true,
     showSponsors: true,
     instagram: '',
     youtube: '',
@@ -80,11 +96,37 @@ export function ConfigTab() {
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500 pb-12">
       
-      <div className="flex flex-col xl:flex-row gap-8">
-        
-        {/* Left Column: Logo Upload */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div className="flex items-center gap-3 border-b border-neutral-800 pb-3">
+      {/* Sub-Tab Navigation Header */}
+      <div className="flex flex-wrap items-center gap-3 border-b border-neutral-800 pb-4">
+        <button
+          onClick={() => setActiveTab('system')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider transition-all duration-300 ${
+            activeTab === 'system'
+              ? 'bg-white text-black shadow-xl shadow-white/10'
+              : 'bg-neutral-900/60 text-neutral-400 hover:text-white border border-neutral-800 hover:border-neutral-700'
+          }`}
+        >
+          <Settings className="w-4 h-4" /> Pengaturan System & Logo
+        </button>
+
+        <button
+          onClick={() => setActiveTab('cast')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold tracking-wider transition-all duration-300 ${
+            activeTab === 'cast'
+              ? 'bg-white text-black shadow-xl shadow-white/10'
+              : 'bg-neutral-900/60 text-neutral-400 hover:text-white border border-neutral-800 hover:border-neutral-700'
+          }`}
+        >
+          <Users className="w-4 h-4" /> Database Master Pemeran & Tim (Cast & Crew)
+        </button>
+      </div>
+
+      {activeTab === 'system' ? (
+        <div className="flex flex-col xl:flex-row gap-8">
+          
+          {/* Left Column: Logo Upload */}
+          <div className="flex-1 flex flex-col gap-6">
+            <div className="flex items-center gap-3 border-b border-neutral-800 pb-3">
             <ImageIcon className="w-5 h-5 text-white" />
             <h2 className="text-lg font-medium text-white tracking-wide">Logo Aplikasi Utama</h2>
           </div>
@@ -157,6 +199,99 @@ export function ConfigTab() {
           
           <div className="p-6 border border-neutral-800 bg-neutral-900/30 rounded-2xl flex flex-col gap-6">
             
+            {/* Section Toggles Header */}
+            <div className="flex flex-col gap-1 border-b border-neutral-800 pb-3">
+              <span className="text-sm font-semibold text-white uppercase tracking-wider">Visibilitas Section Undangan</span>
+              <span className="text-xs text-neutral-500">Atur seksi mana saja yang ingin ditampilkan atau disembunyikan pada halaman undangan tamu.</span>
+            </div>
+
+            {/* Toggle Sinopsis */}
+            <div className="flex items-center justify-between border-b border-neutral-800/50 pb-4">
+              <div className="flex flex-col pr-4">
+                <span className="text-sm font-medium text-white">Sinopsis Singkat Pementasan</span>
+                <span className="text-xs text-neutral-500 mt-0.5">Menampilkan cerita latar & deskripsi pementasan.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={config.showSynopsis !== false}
+                  onChange={(e) => setConfig({...config, showSynopsis: e.target.checked})}
+                />
+                <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
+              </label>
+            </div>
+
+            {/* Toggle Tiket Pamflet */}
+            <div className="flex items-center justify-between border-b border-neutral-800/50 pb-4">
+              <div className="flex flex-col pr-4">
+                <span className="text-sm font-medium text-white">Poster & Tiket Pementasan</span>
+                <span className="text-xs text-neutral-500 mt-0.5">Menampilkan desain pamflet/tiket pertunjukan.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={config.showTicketPamflet !== false}
+                  onChange={(e) => setConfig({...config, showTicketPamflet: e.target.checked})}
+                />
+                <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
+              </label>
+            </div>
+
+
+
+            {/* Toggle Cast & Crew */}
+            <div className="flex items-center justify-between border-b border-neutral-800/50 pb-4">
+              <div className="flex flex-col pr-4">
+                <span className="text-sm font-medium text-white">Galeri Pemeran & Tim Produksi (Cast & Crew)</span>
+                <span className="text-xs text-neutral-500 mt-0.5">Menampilkan foto & jajaran aktor/sutradara pementasan.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={config.showCast !== false}
+                  onChange={(e) => setConfig({...config, showCast: e.target.checked})}
+                />
+                <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
+              </label>
+            </div>
+
+            {/* Toggle Location & Map */}
+            <div className="flex items-center justify-between border-b border-neutral-800/50 pb-4">
+              <div className="flex flex-col pr-4">
+                <span className="text-sm font-medium text-white">Waktu & Peta Lokasi (Google Maps)</span>
+                <span className="text-xs text-neutral-500 mt-0.5">Menampilkan rincian tanggal, jam, dan peta lokasi.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={config.showLocationMap !== false}
+                  onChange={(e) => setConfig({...config, showLocationMap: e.target.checked})}
+                />
+                <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
+              </label>
+            </div>
+
+            {/* Toggle RSVP & E-Ticket */}
+            <div className="flex items-center justify-between border-b border-neutral-800/50 pb-4">
+              <div className="flex flex-col pr-4">
+                <span className="text-sm font-medium text-white">Konfirmasi Kehadiran (RSVP & E-Tiket)</span>
+                <span className="text-xs text-neutral-500 mt-0.5">Menampilkan form konfirmasi hadir & terbitan E-Tiket QR Code.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={config.showRSVP !== false}
+                  onChange={(e) => setConfig({...config, showRSVP: e.target.checked})}
+                />
+                <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
+              </label>
+            </div>
+
             {/* Toggle Sponsor */}
             <div className="flex items-center justify-between border-b border-neutral-800/50 pb-6">
               <div className="flex flex-col pr-4">
@@ -167,7 +302,7 @@ export function ConfigTab() {
                 <input 
                   type="checkbox" 
                   className="sr-only peer" 
-                  checked={config.showSponsors}
+                  checked={config.showSponsors !== false}
                   onChange={(e) => setConfig({...config, showSponsors: e.target.checked})}
                 />
                 <div className="w-11 h-6 bg-neutral-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-white/20 border border-neutral-600 peer-checked:border-white/50"></div>
@@ -232,6 +367,9 @@ export function ConfigTab() {
         </div>
 
       </div>
+      ) : (
+        <CastMasterManager />
+      )}
     </div>
   );
 }

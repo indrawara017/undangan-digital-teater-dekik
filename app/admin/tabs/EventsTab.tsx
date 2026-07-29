@@ -380,6 +380,8 @@ export function EventsTab({ events, fetchData }: { events: any[], fetchData: () 
                   </p>
                 </div>
 
+
+
                 <div className="space-y-1.5">
                   <label className="text-sm text-neutral-400 font-medium block">Sinopsis Pementasan</label>
                   <textarea 

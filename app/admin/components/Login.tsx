@@ -12,20 +12,42 @@ export function Login({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const logoUrl = `${supabaseUrl}/storage/v1/object/public/assets/global/app-logo.png`;
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
+    
+    if (isRegister) {
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin`
+        }
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        // If email confirmation is off, data.session might exist, or user may need to check email
+        if (data.session) {
+          onLoginSuccess();
+        } else {
+          setError('Registrasi berhasil. Silakan cek email Anda untuk verifikasi.');
+        }
+      }
     } else {
-      onLoginSuccess();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError(error.message);
+      } else {
+        onLoginSuccess();
+      }
     }
     setLoading(false);
   };
@@ -66,10 +88,12 @@ export function Login({ onLoginSuccess }: { onLoginSuccess: () => void }) {
             
             <div className="text-center mb-10">
               <h1 className="text-3xl md:text-4xl font-cormorant font-medium mb-2 tracking-wide">Teater Dekik</h1>
-              <p className="text-sm text-neutral-400 font-light">Masuk ke Panel Manajemen Undangan</p>
+              <p className="text-sm text-neutral-400 font-light">
+                {isRegister ? 'Daftar Akun Admin Baru' : 'Masuk ke Panel Manajemen Undangan'}
+              </p>
             </div>
 
-            <form onSubmit={handleLogin} className="flex flex-col gap-6">
+            <form onSubmit={handleAuth} className="flex flex-col gap-6">
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -125,15 +149,30 @@ export function Login({ onLoginSuccess }: { onLoginSuccess: () => void }) {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                    Memeriksa Akses...
+                    {isRegister ? 'Mendaftarkan...' : 'Memeriksa Akses...'}
                   </span>
                 ) : (
                   <>
-                    Masuk ke Dasbor
+                    {isRegister ? 'Daftar Akun' : 'Masuk ke Dasbor'}
                     <KeyRound className="w-4 h-4 opacity-70 group-hover:opacity-100 transition-opacity" />
                   </>
                 )}
               </Button>
+              
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(!isRegister);
+                    setError(null);
+                  }}
+                  className="text-sm text-neutral-400 hover:text-white transition-colors"
+                >
+                  {isRegister 
+                    ? 'Sudah punya akun? Masuk di sini' 
+                    : 'Belum punya akun? Daftar di sini'}
+                </button>
+              </div>
             </form>
           </div>
           

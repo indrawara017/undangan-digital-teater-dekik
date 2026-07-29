@@ -6,7 +6,7 @@ import { UploadCloud, Trash2, Plus, Users, Image as ImageIcon } from 'lucide-rea
 
 interface MultiImageUploadProps {
   eventId: string;
-  folderName: 'sponsors' | 'logos';
+  folderName: 'sponsors' | 'logos' | 'cast';
   title: string;
   icon: 'users' | 'image';
 }
@@ -39,8 +39,8 @@ export function MultiImageUpload({ eventId, folderName, title, icon }: MultiImag
     setUploadingImage('new');
     
     const ext = file.name.split('.').pop();
-    const baseName = newImageName.trim() || file.name.replace(/\.[^/.]+$/, "");
-    const safeName = baseName.replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 30) || 'image'; 
+    const baseName = folderName === 'logos' ? file.name.replace(/\.[^/.]+$/, "") : (newImageName.trim() || file.name.replace(/\.[^/.]+$/, ""));
+    const safeName = baseName.replace(/[^a-zA-Z0-9 ]/g, '').substring(0, 30) || (folderName === 'logos' ? 'logo' : 'image'); 
     const filePath = `${eventId}/${folderName}/${safeName}---${Date.now()}.${ext}`;
     
     const { error } = await supabase.storage.from('assets').upload(filePath, file, { cacheControl: '3600' });
@@ -116,13 +116,15 @@ export function MultiImageUpload({ eventId, folderName, title, icon }: MultiImag
       <div className="flex flex-col gap-3 p-5 border border-neutral-800 bg-neutral-900/20 rounded-2xl flex-1 min-h-0">
         <div className="flex flex-col gap-2 shrink-0">
           <label className="text-xs uppercase tracking-widest font-medium text-neutral-400">Tambah {title} Baru</label>
-          <input 
-            type="text" 
-            placeholder={`Masukkan Nama ${title.split(' ')[0]}...`}
-            value={newImageName}
-            onChange={e => setNewImageName(e.target.value)}
-            className="w-full bg-black/40 border border-neutral-800 text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-white/30"
-          />
+          {folderName !== 'logos' && (
+            <input 
+              type="text" 
+              placeholder={`Masukkan Nama ${title.split(' ')[0]}...`}
+              value={newImageName}
+              onChange={e => setNewImageName(e.target.value)}
+              className="w-full bg-black/40 border border-neutral-800 text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-white/30"
+            />
+          )}
           <div className="relative w-full h-11 mt-1">
             <input 
               type="file" 

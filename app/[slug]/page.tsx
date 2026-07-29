@@ -70,10 +70,19 @@ export default async function GuestPage({ params }: Props) {
 
   if (!targetInvitation) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 text-center font-inter">
-        <div>
-          <h1 className="text-2xl font-cormorant mb-4">Halo, {guest.name}</h1>
-          <p className="text-neutral-400">Undangan pementasan ini tidak ditemukan atau belum tersedia.</p>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 text-center font-sans relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="relative z-10 max-w-md w-full p-8 rounded-2xl border border-neutral-800 bg-neutral-900/80 backdrop-blur-xl shadow-2xl">
+          <h1 className="text-2xl font-bold font-cormorant mb-3 text-white">Halo, {guest.name}</h1>
+          <p className="text-neutral-400 text-sm leading-relaxed mb-6">
+            Undangan pementasan ini tidak ditemukan atau belum tersedia.
+          </p>
+          <a
+            href="/"
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-sm font-semibold transition-all duration-200 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+          >
+            Kembali ke Beranda
+          </a>
         </div>
       </div>
     );

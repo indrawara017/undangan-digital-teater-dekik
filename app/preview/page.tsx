@@ -7,41 +7,103 @@ import { Countdown } from '../components/Countdown';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { FullScreenLoader } from '@/app/components/Loader';
+import { AnimatedCastShowcase } from '@/app/components/AnimatedCastShowcase';
+import { CompactCastSection } from '@/app/components/CompactCastSection';
+import { ScriptTypewriterHeader } from '@/app/components/ScriptTypewriterHeader';
 import React from 'react';
 
-const premiumStagger: Variants = {
+const heroStagger: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.2, delayChildren: 0.1 }
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 }
   }
 };
 
-const premiumFadeIn: Variants = {
-  hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 1.4, ease: [0.16, 1, 0.3, 1] }
+const heroFadeIn: Variants = {
+  hidden: { opacity: 0, y: 24, scale: 0.97 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } 
   }
 };
 
-const premiumScaleIn: Variants = {
-  hidden: { opacity: 0, scale: 0.9, filter: 'blur(10px)' },
+const heroScaleIn: Variants = {
+  hidden: { opacity: 0, scale: 0.92, y: 16 },
   visible: {
     opacity: 1,
     scale: 1,
-    filter: 'blur(0px)',
-    transition: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
+    y: 0,
+    transition: { duration: 1.0, ease: [0.16, 1, 0.3, 1] }
   }
 };
+
+const premiumStagger = heroStagger;
+const premiumFadeIn = heroFadeIn;
+const premiumScaleIn = heroScaleIn;
 
 export default function PreviewPage() {
   return (
     <Suspense fallback={<FullScreenLoader text="Mempersiapkan Pratinjau..." />}>
       <PreviewContent />
     </Suspense>
+  );
+}
+
+function SubtleTypingWord({ text, className }: { text: string; className: string }) {
+  return (
+    <motion.p
+      initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)', y: 4 }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', y: 0 }}
+      exit={{ opacity: 0, scale: 1.04, filter: 'blur(6px)', y: -4 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      className={`${className} uppercase`}
+    >
+      {text}
+    </motion.p>
+  );
+}
+
+function TeaterSubtleTypingLoader() {
+  const steps = [
+    { text: "Bersatu", size: "text-4xl sm:text-5xl font-light tracking-[0.35em] text-neutral-200" },
+    { text: "Bersama", size: "text-4xl sm:text-5xl font-light tracking-[0.35em] text-neutral-200" },
+    { text: "dan Terus Berkarya", size: "text-3xl sm:text-4xl md:text-5xl font-light tracking-[0.25em] text-neutral-100" },
+    { text: "Teater Dekik Jaya", size: "text-4xl sm:text-5xl md:text-6xl font-semibold font-cormorant tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-b from-white to-amber-200 drop-shadow-[0_0_35px_rgba(255,255,255,0.5)]" },
+  ];
+
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    const timings = [750, 1000, 1000, 600];
+    let isMounted = true;
+
+    const runSequence = async () => {
+      for (let i = 0; i < steps.length - 1; i++) {
+        await new Promise(res => setTimeout(res, timings[i]));
+        if (!isMounted) return;
+        setCurrentStep(prev => prev + 1);
+      }
+    };
+
+    runSequence();
+    return () => { isMounted = false; };
+  }, []);
+
+  const step = steps[currentStep];
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-white p-6 overflow-hidden select-none">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(60,60,60,0.4)_0%,transparent_75%)] pointer-events-none" />
+      
+      <AnimatePresence mode="wait">
+        <div key={currentStep} className="relative z-10 text-center px-4">
+          <SubtleTypingWord text={step.text} className={step.size} />
+        </div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -52,6 +114,8 @@ function PreviewContent() {
   const [eventData, setEventData] = useState<any>(null);
   const [sponsors, setSponsors] = useState<any[]>([]);
   const [logos, setLogos] = useState<any[]>([]);
+  const [cast, setCast] = useState<any[]>([]);
+  const [assignedCast, setAssignedCast] = useState<any[]>([]);
   const [config, setConfig] = useState<any>({ showSponsors: true, instagram: '', youtube: '', tiktok: '' });
   const [loading, setLoading] = useState(true);
   const [ticketError, setTicketError] = useState(false);
@@ -60,6 +124,11 @@ function PreviewContent() {
   const [isCoverOpened, setIsCoverOpened] = useState(false);
   const [wantsMusic, setWantsMusic] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+  const handleOpenInvitation = (music: boolean) => {
+    setWantsMusic(music);
+    setIsCoverOpened(true);
+  };
 
   useEffect(() => {
     if (sponsors.length > 3) {
@@ -84,13 +153,14 @@ function PreviewContent() {
   };
 
   useEffect(() => {
-    if (!eventId) {
-      setLoading(false);
-      return;
-    }
     const fetchEvent = async () => {
-      const { data } = await supabase.from('events').select('*').eq('id', eventId).single();
-      setEventData(data);
+      if (!eventId) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: ev } = await supabase.from('events').select('*').eq('id', eventId).single();
+      if (ev) setEventData(ev);
 
       const { data: sponsorData } = await supabase.storage.from('assets').list(`${eventId}/sponsors`);
       if (sponsorData) {
@@ -105,6 +175,20 @@ function PreviewContent() {
       if (logoData) {
         setLogos(logoData.filter(f => f.name !== '.emptyFolderPlaceholder' && f.name !== '.emptyFolder'));
       }
+
+      const { data: castData } = await supabase.storage.from('assets').list(`${eventId}/cast`);
+      if (castData) {
+        setCast(castData.filter(f => f.name !== '.emptyFolderPlaceholder' && f.name !== '.emptyFolder'));
+      }
+
+      // Fetch Per-Event Cast Assignments
+      try {
+        const { data: eventCastData } = await supabase.storage.from('assets').download(`${eventId}/event_cast.json`);
+        if (eventCastData) {
+          const castList: any[] = JSON.parse(await eventCastData.text());
+          setAssignedCast(castList);
+        }
+      } catch (e) {}
 
       const { data: configData } = await supabase.storage.from('assets').download('global/config.json');
       if (configData) {
@@ -129,16 +213,13 @@ function PreviewContent() {
         }))
       );
 
-      setTimeout(() => setLoading(false), 500);
+      // Fast loader sequence completion -> immediate fade out into cover
+      setTimeout(() => setLoading(false), 3350);
     };
     fetchEvent();
   }, [eventId]);
 
-  if (loading) {
-    return <FullScreenLoader text="MEMBUKA TIRAI..." />;
-  }
-
-  if (!eventData) {
+  if (!eventData && !loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">
         <p className="font-cormorant text-2xl text-red-500 tracking-widest">PEMENTASAN TIDAK DITEMUKAN</p>
@@ -149,113 +230,122 @@ function PreviewContent() {
   const bgUrl = getAssetUrl('background.jpg');
   const ticketUrl = getAssetUrl('ticket.jpg');
 
-  if (!isCoverOpened) {
-    const tagline = "Bersatu Bersama dan Terus Berkarya".split(" ");
-    const brandName = "Teater Dekik";
-
+  // Welcome / Cover Screen with smooth AnimatePresence transition from Loader
+  if (loading || !isCoverOpened) {
     return (
-      <motion.div
-        key="cover"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-white overflow-hidden"
-      >
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a1a_0%,transparent_70%)]" />
-        </div>
-
-        <div className="relative z-10 flex flex-col items-center text-center gap-4 px-6 max-w-lg">
-          {logos.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 1 }}
-              className="flex flex-wrap items-center justify-center gap-4 mb-4"
-            >
-              {logos.map((logo) => (
-                <img
-                  key={logo.name}
-                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/${eventId}/logos/${logo.name}`}
-                  alt="Logo"
-                  className="h-10 md:h-12 w-auto object-contain drop-shadow-lg"
-                />
-              ))}
-            </motion.div>
-          )}
-
-          {/* Tagline - word by word reveal */}
-          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
-            {tagline.map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ delay: 0.3 + i * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="text-sm md:text-base tracking-[0.25em] uppercase text-neutral-400 font-light"
-              >
-                {word}
-              </motion.span>
-            ))}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed inset-0 z-50"
+          >
+            <TeaterSubtleTypingLoader />
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="cover"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-neutral-950 text-white overflow-hidden p-6"
+          >
+          {/* Rich Event Background Image with Dramatic Vignette */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={bgUrl} 
+              alt="Theater Event Background" 
+              className="w-full h-full object-cover opacity-65 scale-105 transition-all duration-1000"
+              onError={(e) => {
+                e.currentTarget.style.opacity = '0.25';
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/75" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)] pointer-events-none" />
           </div>
 
-          <motion.div
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="w-24 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent my-2"
-          />
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30, letterSpacing: '0.5em', filter: 'blur(12px)' }}
-            animate={{ opacity: 1, y: 0, letterSpacing: '0.15em', filter: 'blur(0px)' }}
-            transition={{ delay: 1.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-cormorant text-4xl md:text-5xl lg:text-6xl font-semibold text-white drop-shadow-2xl leading-tight"
-          >
-            {brandName}
-          </motion.h1>
-
-          <motion.span
-            initial={{ opacity: 0, y: 30, letterSpacing: '0.5em', filter: 'blur(12px)' }}
-            animate={{ opacity: 1, y: 0, letterSpacing: '0.15em', filter: 'blur(0px)' }}
-            transition={{ delay: 1.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm md:text-base tracking-[0.25em] uppercase text-neutral-400 font-light"
-          >
-            Jaya
-          </motion.span>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col w-full sm:w-auto gap-3 mt-6"
-          >
-            <button
-              onClick={() => { setWantsMusic(eventData?.is_audio_enabled !== false); setIsCoverOpened(true); }}
-              className="px-8 py-3.5 bg-white text-black text-[11px] uppercase tracking-[0.2em] font-bold rounded-full transition-transform duration-300 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2"
-            >
-              {eventData?.is_audio_enabled !== false ? (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
-                  Buka & Putar Musik
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                  Buka Undangan
-                </>
-              )}
-            </button>
-            {eventData?.is_audio_enabled !== false && (
-              <button
-                onClick={() => { setWantsMusic(false); setIsCoverOpened(true); }}
-                className="px-8 py-3.5 bg-transparent border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-medium rounded-full hover:bg-white/10 transition-colors duration-300 flex items-center justify-center gap-2"
+          <div className="relative z-10 flex flex-col items-center text-center max-w-md w-full my-auto py-10 space-y-10 sm:space-y-12">
+            
+            {/* Top Brand Logos */}
+            {logos.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -15 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ delay: 0.1, duration: 0.8 }}
+                className="flex flex-wrap items-center justify-center gap-4 mb-2"
               >
-                <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
-                Buka Tanpa Musik
-              </button>
+                {logos.map((logo) => (
+                  <img 
+                    key={logo.name}
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/${eventId}/logos/${logo.name}`}
+                    alt="Logo"
+                    className="h-10 sm:h-14 w-auto max-w-[150px] object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]"
+                  />
+                ))}
+              </motion.div>
             )}
-          </motion.div>
-        </div>
-      </motion.div>
+
+            {/* Welcome Text Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3 sm:space-y-4"
+            >
+              {/* Baris 1 */}
+              <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-neutral-400 font-light">
+                Selamat Datang di
+              </p>
+              {/* Baris 2 */}
+              <h2 className="font-cormorant text-2xl sm:text-3xl font-medium text-neutral-200 tracking-widest uppercase">
+                Undangan Digital
+              </h2>
+              {/* Baris 3 */}
+              <h1 className="font-cormorant text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-amber-100 tracking-wide drop-shadow-md">
+                Teater Dekik
+              </h1>
+            </motion.div>
+
+            {/* Open Invitation Action Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.8 }}
+              className="flex flex-col w-full sm:w-auto gap-3 pt-2"
+            >
+              <button 
+                onClick={() => handleOpenInvitation(eventData?.is_audio_enabled !== false)}
+                className="px-9 py-4 bg-white text-black text-xs uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.25)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] hover:scale-[1.02] flex items-center justify-center gap-2.5 active:scale-95"
+              >
+                {eventData?.is_audio_enabled !== false ? (
+                  <>
+                    <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+                    Buka & Putar Musik
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    Buka Undangan
+                  </>
+                )}
+              </button>
+              {eventData?.is_audio_enabled !== false && (
+                <button 
+                  onClick={() => handleOpenInvitation(false)}
+                  className="px-9 py-3.5 bg-transparent border border-white/25 text-white/90 text-xs uppercase tracking-[0.2em] font-medium rounded-full hover:bg-white/10 hover:text-white transition-all duration-300 flex items-center justify-center gap-2.5"
+                >
+                  <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                  Buka Tanpa Musik
+                </button>
+              )}
+            </motion.div>
+          </div>
+        </motion.div>
+        )}
+      </AnimatePresence>
     );
   }
 
@@ -268,9 +358,9 @@ function PreviewContent() {
 
           <div className="absolute inset-0 z-0">
             <motion.div
-              initial={{ scale: 1.1, opacity: 0 }}
+              initial={{ scale: 1.08, opacity: 0 }}
               animate={{ scale: 1, opacity: 0.7 }}
-              transition={{ duration: 4, ease: 'easeOut' }}
+              transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{ backgroundImage: `url(${bgUrl})` }}
             />
@@ -283,48 +373,49 @@ function PreviewContent() {
 
           <motion.div
             initial="hidden"
-            animate="visible"
-            variants={premiumStagger}
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.15 }}
+            variants={heroStagger}
             className="flex-1 w-full flex flex-col items-center justify-center pb-16 md:pb-20 z-10"
           >
 
             {logos.length > 0 && (
               <motion.div
-                variants={premiumFadeIn}
-                className="flex flex-wrap items-center justify-center gap-6 md:gap-10 mb-10 w-full px-4"
+                variants={heroFadeIn}
+                className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-6 w-full px-4"
               >
                 {logos.map((logo) => (
                   <img
                     key={logo.name}
                     src={getAssetUrl(`logos/${logo.name}`)}
                     alt="Logo"
-                    className="h-12 md:h-16 w-auto object-contain drop-shadow-lg"
+                    className="h-12 sm:h-16 md:h-20 w-auto max-w-[160px] object-contain drop-shadow-lg"
                   />
                 ))}
               </motion.div>
             )}
 
             <motion.div
-              variants={premiumFadeIn}
-              className="flex flex-col items-center justify-center gap-1 mb-3 w-full"
+              variants={heroFadeIn}
+              className="flex flex-col items-center justify-center gap-1.5 mb-4 w-full"
             >
-              <p className="text-[10px] md:text-xs tracking-[0.4em] uppercase text-neutral-400 text-center w-full">
+              <p className="text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase text-neutral-200 font-medium text-center w-full drop-shadow-md">
                 Teater Dekik Mempersembahkan
               </p>
-              <p className="text-[9px] md:text-[10px] tracking-widest text-neutral-500 font-light italic mt-1 text-center w-full">
+              <p className="text-xs sm:text-sm tracking-wider text-neutral-300 font-normal italic mt-0.5 text-center w-full drop-shadow-sm">
                 Karya: {eventData.creator || '[Nama Penulis/Sutradara]'}
               </p>
             </motion.div>
 
             <motion.h1
-              variants={premiumScaleIn}
+              variants={heroScaleIn}
               className="w-full text-center font-cormorant text-4xl md:text-5xl lg:text-6xl font-medium mb-6 pb-2 px-4 leading-tight drop-shadow-2xl text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400"
             >
               {eventData.title}
             </motion.h1>
 
             <motion.div
-              variants={premiumFadeIn}
+              variants={heroFadeIn}
               className="flex flex-col items-center justify-center gap-2 mb-8 text-center px-4 w-full"
             >
               <span className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-neutral-400 text-center w-full">Kepada Yth.</span>
@@ -332,12 +423,12 @@ function PreviewContent() {
             </motion.div>
 
             <motion.div
-              variants={premiumFadeIn}
+              variants={heroFadeIn}
               className="h-px bg-gradient-to-r from-transparent via-white/50 to-transparent mb-8 w-20"
             />
 
             <motion.div
-              variants={premiumFadeIn}
+              variants={heroFadeIn}
               className="flex flex-col items-center justify-center gap-4 w-full text-center"
             >
               <div className="flex flex-row items-center justify-center gap-2 text-neutral-200 w-full">
@@ -352,16 +443,6 @@ function PreviewContent() {
                 </p>
               </div>
             </motion.div>
-
-            {/* Countdown Timer */}
-            {eventData.date && (
-              <motion.div
-                variants={premiumFadeIn}
-                className="w-full flex justify-center mt-2"
-              >
-                <Countdown targetDate={eventData.date} />
-              </motion.div>
-            )}
           </motion.div>
 
           {/* Scroll Indicator */}
@@ -389,7 +470,7 @@ function PreviewContent() {
         <motion.section
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.15, margin: "0px 0px -100px 0px" }}
+          viewport={{ once: false, amount: 0.15, margin: "0px 0px -100px 0px" }}
           variants={premiumStagger}
           className="relative py-32 px-6 md:px-12 max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16"
         >
@@ -437,12 +518,12 @@ function PreviewContent() {
         <motion.section
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.15, margin: "0px 0px -100px 0px" }}
+          viewport={{ once: false, amount: 0.15, margin: "0px 0px -100px 0px" }}
           variants={premiumStagger}
           className="relative py-20 px-6 max-w-4xl mx-auto flex flex-col items-center text-center gap-10"
         >
-          <motion.div variants={premiumFadeIn} className="space-y-4">
-            <h2 className="font-cormorant text-4xl md:text-5xl text-neutral-200">Tiket Pementasan</h2>
+          <motion.div variants={premiumFadeIn}>
+            <ScriptTypewriterHeader title="Tiket Pementasan" subtitle="Poster & E-Tiket" align="center" />
           </motion.div>
 
           <motion.div variants={premiumScaleIn} className="w-full max-w-2xl relative">
@@ -477,20 +558,50 @@ function PreviewContent() {
           </motion.div>
         </motion.section>
 
+
+
+        {/* SECTION 2D: GALERI PEMERAN (COMPACT GRID WITH STAGGERED SCROLL REVEAL & MODAL) */}
+        {config.showCast !== false && (
+          <section className="relative py-16 md:py-24 px-4 sm:px-6 max-w-6xl mx-auto text-center">
+            <CompactCastSection 
+              castList={
+                assignedCast.length > 0 
+                  ? assignedCast.map((member) => ({
+                      id: member.memberId || member.id || member.name,
+                      name: member.name,
+                      role: member.role,
+                      photoUrl: member.photoUrl
+                    }))
+                  : cast.length > 0
+                  ? cast.map((item) => ({
+                      id: item.name,
+                      name: item.name.split('.')[0].replace(/[-_]/g, ' '),
+                      role: 'Pemeran / Tim',
+                      photoUrl: getAssetUrl(`cast/${item.name}`)
+                    }))
+                  : [
+                      { id: 'demo-1', name: 'Manik Sukadana', role: 'Sutradara Pementasan', photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop' },
+                      { id: 'demo-2', name: 'Indra Wardana', role: 'Pemeran Utama', photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&auto=format&fit=crop' },
+                      { id: 'demo-3', name: 'Dewi Anjani', role: 'Pemeran Utama', photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&auto=format&fit=crop' },
+                      { id: 'demo-4', name: 'Bagus Pratama', role: 'Penata Musik & Tim', photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&auto=format&fit=crop' }
+                    ]
+              } 
+              onZoomImage={setZoomedImage} 
+            />
+          </section>
+        )}
+
         {/* SECTION 3: WAKTU & LOKASI (GMAPS) */}
         <motion.section
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.15, margin: "0px 0px -100px 0px" }}
+          viewport={{ once: false, amount: 0.15, margin: "0px 0px -100px 0px" }}
           variants={premiumStagger}
-          className="relative py-32"
+          className="relative py-16 md:py-24"
         >
-          <div className="max-w-6xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row gap-16">
+          <div className="max-w-5xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center gap-10 md:gap-16">
             <motion.div variants={premiumFadeIn} className="flex-1 space-y-10">
-              <div className="space-y-4">
-                <span className="text-xs tracking-[0.3em] uppercase text-neutral-500">Pelaksanaan</span>
-                <h2 className="font-cormorant text-4xl text-neutral-200">Waktu & Tempat</h2>
-              </div>
+              <ScriptTypewriterHeader title="Waktu & Tempat" subtitle="Pelaksanaan" align="left" />
 
               <div className="flex flex-col gap-8">
                 <div className="flex flex-col">
@@ -516,17 +627,17 @@ function PreviewContent() {
               </div>
             </motion.div>
 
-            <motion.div variants={premiumScaleIn} className="flex-1 w-full aspect-square border border-white/10 bg-black/50 rounded-xl overflow-hidden relative group backdrop-blur-md">
+            <motion.div variants={premiumScaleIn} className="flex-1 w-full h-[280px] sm:h-[340px] lg:h-[360px] border border-neutral-700/80 bg-neutral-900 rounded-2xl overflow-hidden relative group shadow-2xl">
               {eventData.gmaps_url ? (
-                <iframe
-                  src={eventData.gmaps_url}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) grayscale(80%) contrast(120%)' }}
-                  allowFullScreen={true}
-                  loading="lazy"
+                <iframe 
+                  src={eventData.gmaps_url} 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(110%)' }} 
+                  allowFullScreen={true} 
+                  loading="lazy" 
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="opacity-80 hover:opacity-100 transition-opacity duration-500 pointer-events-auto"
+                  className="w-full h-full"
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-neutral-600 gap-4 p-8 text-center">
@@ -542,13 +653,13 @@ function PreviewContent() {
         <motion.section
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.15, margin: "0px 0px -100px 0px" }}
+          viewport={{ once: false, amount: 0.15, margin: "0px 0px -100px 0px" }}
           variants={premiumStagger}
-          className="relative py-32 px-6 max-w-2xl mx-auto text-center space-y-12"
+          className="relative py-10 md:py-16 px-4 sm:px-6 max-w-md mx-auto text-center space-y-5"
         >
-          <motion.div variants={premiumFadeIn}>
-            <h2 className="font-cormorant text-4xl md:text-5xl text-neutral-200 mb-4">Konfirmasi Kehadiran</h2>
-            <p className="text-neutral-400 text-sm md:text-base font-light">
+          <motion.div variants={premiumFadeIn} className="w-full space-y-3">
+            <ScriptTypewriterHeader title="Konfirmasi Kehadiran" subtitle="Kehadiran" align="center" />
+            <p className="text-neutral-400 text-xs font-light max-w-xs sm:max-w-sm mx-auto leading-relaxed">
               Merupakan suatu kehormatan bagi kami apabila Anda berkenan hadir dan menyaksikan pementasan ini.
             </p>
           </motion.div>
@@ -565,90 +676,54 @@ function PreviewContent() {
         {/* SECTION 5: SPONSORS (Conditional) */}
         {sponsors.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className="py-20 overflow-hidden relative"
+            viewport={{ once: false, amount: 0.1 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="pt-12 pb-6 md:pt-16 md:pb-8 overflow-hidden relative border-t border-neutral-900/80"
           >
-            <div className="w-full text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 mb-10">Didukung Oleh</p>
+            <div className="w-full text-center space-y-3">
+              <ScriptTypewriterHeader title="Didukung Oleh" subtitle="Sponsor & Mitra" align="center" />
 
-              {sponsors.length <= 3 ? (
-                <div className="flex justify-center items-center gap-12 opacity-80">
-                  {sponsors.map((sponsor) => (
-                    <div key={sponsor.name} className="flex flex-col items-center gap-3">
-                      <img
-                        src={getAssetUrl(`sponsors/${sponsor.name}`)}
-                        alt={`Sponsor ${sponsor.name}`}
-                        className="h-10 md:h-12 w-auto max-w-[120px] object-contain transition-all duration-300"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <motion.div
-                  className="relative h-24 md:h-32 w-full max-w-3xl mx-auto flex justify-center items-center cursor-grab active:cursor-grabbing"
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={(e, { offset }) => {
-                    if (offset.x < -30) {
-                      setSponsorIndex((prev) => (prev + 1) % sponsors.length);
-                    } else if (offset.x > 30) {
-                      setSponsorIndex((prev) => (prev - 1 + sponsors.length) % sponsors.length);
-                    }
-                  }}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {[-1, 0, 1, 2].map((offset) => {
-                      // Normalize the index to safely wrap around the array length
-                      const normalizedIndex = (((sponsorIndex + offset) % sponsors.length) + sponsors.length) % sponsors.length;
-                      const sponsor = sponsors[normalizedIndex];
-                      // The unique key MUST incorporate the specific index in the array to handle duplicates properly
-                      const uniqueKey = `${sponsor.name}-${normalizedIndex}`;
+              {/* Left and Right Gradient Fade Masks */}
+              <div className="relative w-full max-w-5xl mx-auto overflow-hidden px-4">
+                <div className="absolute top-0 bottom-0 left-0 w-16 md:w-28 bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none" />
+                <div className="absolute top-0 bottom-0 right-0 w-16 md:w-28 bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none" />
 
-                      const isMain = offset === 0 || offset === 1;
-                      const spacing = typeof window !== 'undefined' && window.innerWidth < 768 ? 85 : 140;
-                      const xPos = (offset - 0.5) * spacing;
-
+                {/* Marquee Motion Track */}
+                <div className="flex overflow-hidden py-2">
+                  <motion.div
+                    className="flex items-center gap-12 md:gap-20 shrink-0 pr-12 md:pr-20"
+                    animate={{ x: ['0%', '-50%'] }}
+                    transition={{
+                      x: {
+                        repeat: Infinity,
+                        repeatType: 'loop',
+                        duration: Math.max(14, sponsors.length * 4),
+                        ease: 'linear',
+                      },
+                    }}
+                  >
+                    {[...sponsors, ...sponsors, ...sponsors, ...sponsors].map((sponsor, idx) => {
+                      const displayName = sponsor.name.split('---')[0];
                       return (
-                        <motion.div
-                          key={uniqueKey}
-                          layout
-                          initial={{ opacity: 0, x: xPos + 100, scale: 0.5 }}
-                          animate={{
-                            x: xPos,
-                            scale: isMain ? 1 : 0.75,
-                            opacity: isMain ? 1 : 0.3,
-                            filter: isMain ? 'grayscale(0%)' : 'grayscale(100%)',
-                            zIndex: isMain ? 20 : 10,
-                          }}
-                          exit={{ opacity: 0, x: xPos - 100, scale: 0.5 }}
-                          transition={{ duration: 1.0, ease: "easeInOut" }}
-                          className="absolute flex flex-col items-center gap-3"
-                        >
-                          <img
-                            src={getAssetUrl(`sponsors/${sponsor.name}`)}
-                            alt={`Sponsor ${sponsor.name}`}
-                            className="h-10 md:h-14 w-auto max-w-[120px] object-contain"
-                          />
-                          {isMain && (
-                            <motion.span
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.3 }}
-                              className="text-[10px] uppercase tracking-widest text-neutral-400 absolute -bottom-6 md:-bottom-8 whitespace-nowrap"
-                            >
-                              {sponsor.name.split('---')[0]}
-                            </motion.span>
-                          )}
-                        </motion.div>
+                        <div key={`${sponsor.name}-${idx}`} className="flex flex-col items-center gap-2.5 shrink-0 group">
+                          <div className="h-12 md:h-16 flex items-center justify-center">
+                            <img
+                              src={getAssetUrl(`sponsors/${sponsor.name}`)}
+                              alt={`Sponsor ${displayName}`}
+                              className="h-10 md:h-14 w-auto max-w-[140px] object-contain opacity-80 group-hover:opacity-100 transition-all duration-300 filter group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                            />
+                          </div>
+                          <span className="text-[10px] md:text-[11px] uppercase tracking-widest text-neutral-400 group-hover:text-neutral-200 transition-colors whitespace-nowrap">
+                            {displayName}
+                          </span>
+                        </div>
                       );
                     })}
-                  </AnimatePresence>
-                </motion.div>
-              )}
+                  </motion.div>
+                </div>
+              </div>
             </div>
           </motion.section>
         )}
@@ -657,9 +732,9 @@ function PreviewContent() {
         <motion.footer
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 1.5 }}
-          className="pt-32 pb-16 text-center flex flex-col items-center justify-center gap-6 bg-gradient-to-t from-black via-black/80 to-transparent relative z-10"
+          className="pt-8 md:pt-10 pb-16 text-center flex flex-col items-center justify-center gap-6 bg-gradient-to-t from-black via-black/80 to-transparent relative z-10"
         >
           <div className="flex items-center gap-6">
             {config.instagram && (
