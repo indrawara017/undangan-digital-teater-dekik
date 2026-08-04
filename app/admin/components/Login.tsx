@@ -34,11 +34,16 @@ export function Login({ onLoginSuccess }: { onLoginSuccess: () => void }) {
       if (error) {
         setError(error.message);
       } else {
-        // If email confirmation is off, data.session might exist, or user may need to check email
-        if (data.session) {
-          onLoginSuccess();
+        // Melakukan auto-login langsung setelah registrasi berhasil
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (signInError) {
+          // Jika gagal auto-login (misal karena konfirmasi email masih aktif di Supabase), tampilkan pesan verifikasi
+          setError('Registrasi berhasil. Silakan cek email Anda untuk verifikasi atau aktifkan login tanpa verifikasi di Supabase.');
         } else {
-          setError('Registrasi berhasil. Silakan cek email Anda untuk verifikasi.');
+          onLoginSuccess();
         }
       }
     } else {

@@ -3,11 +3,10 @@
 Aplikasi web modern (berbasis Next.js) untuk manajemen, kustomisasi visual, dan penyebaran undangan digital khusus pementasan teater. Sistem ini mengombinasikan tampilan undangan (klien) yang interaktif nan premium dengan dasbor administrasi (admin) yang sangat komprehensif. Terintegrasi penuh dengan **Supabase** untuk basis data (PostgreSQL) dan penyimpanan aset (Storage).
 
 ![Undangan Digital Teater Dekik Preview](public/preview.png)
-![Tampilan Login Admin](public/preview-login.png)
 
-## ✨ Fitur Utama
+## Main Feature
 
-### Sisi Pengguna (Tamu Undangan)
+### Guest
 - **Animasi Interaktif:** Tampilan awal buka amplop otomatis yang elegan (dibangun menggunakan Framer Motion).
 - **Audio Autoplay & Toggle:** Fitur pemutar lagu pengiring yang dapat dihidupkan/dimatikan kapan saja.
 - **Daftar Pementasan Dinamis:** Tampilan slide/korsel (carousel) untuk daftar pertunjukan.
@@ -15,7 +14,7 @@ Aplikasi web modern (berbasis Next.js) untuk manajemen, kustomisasi visual, dan 
 - **e-Tiket & QR Code:** Tamu yang melakukan RSVP akan mendapatkan QR code secara otomatis.
 - **Integrasi Maps:** Peta lokasi disematkan langsung (Google Maps Embed).
 
-### Sisi Admin (Dasbor)
+### Admin Panel
 - **Manajemen Pementasan (Events):** Atur judul, waktu, lokasi peta, hingga kolom khusus nama Penulis/Sutradara/Kreator pementasan.
 - **Manajemen Tamu (Guests):** Tambah, edit, dan hapus data tamu (kategori: Alumni & Teater). Fitur "Cari" yang responsif.
 - **Distribusi (Broadcast):** Buat tautan (*link*) khusus untuk tiap tamu dan langsung bagikan melalui pesan auto-generate ke **WhatsApp**. 
@@ -26,48 +25,16 @@ Aplikasi web modern (berbasis Next.js) untuk manajemen, kustomisasi visual, dan 
 - **Manajemen Kehadiran (RSVP):** Pantau status konfirmasi tamu (Hadir, Tidak Hadir, Belum Merespon) secara instan.
 - **Mobile First & UX Friendly:** Dasbor sangat adaptif saat dibuka dari perangkat seluler. Kotak opsi (Custom Select) serta tata letak tabel telah disesuaikan agar tidak tumpang tindih (*overlap*).
 
-## 🚀 Teknologi yang Digunakan
+## Framework
 - **Frontend:** [Next.js 15](https://nextjs.org/) (App Router), React, TypeScript.
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) dengan dukungan visual yang modern (glassmorphism, transisi mulus).
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/).
 - **Animasi:** [Framer Motion](https://www.framer.com/motion/).
 - **Ikon:** [Lucide React](https://lucide.dev/).
 - **Backend/BaaS:** [Supabase](https://supabase.com/) (PostgreSQL & Storage).
 
 ---
 
-## 🛠️ Persiapan dan Instalasi
-
-### 1. Kloning Repositori
-```bash
-git clone https://github.com/indrawara017/undangan-digital-teater-dekik.git
-cd undangan-digital-teater-dekik
-```
-
-### 2. Instalasi Dependensi
-```bash
-npm install
-# atau
-yarn install
-```
-
-### 3. Konfigurasi Environment (Lingkungan)
-Buat file bernama `.env.local` di *root* direktori proyek Anda dan tambahkan kunci Supabase:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-ID].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
-NEXT_PUBLIC_ADMIN_PASSWORD=admin # Opsional: kata sandi masuk untuk /admin
-```
-
-### 4. Menjalankan Aplikasi Secara Lokal
-```bash
-npm run dev
-```
-Buka aplikasi di `http://localhost:3000`.
-
----
-
-## 📂 Struktur Proyek
+## Directory
 Berikut adalah gambaran singkat struktur folder pada repositori ini:
 
 - `app/[slug]/` — Halaman klien utama (Front-end untuk para tamu).
@@ -78,7 +45,5 @@ Berikut adalah gambaran singkat struktur folder pada repositori ini:
 
 ---
 
-## 👨‍💻 Kontributor / Pengembang
+## Developer
 Pengembangan (*Development*) oleh **Indra Wardana**.
-
-*(Bagian *footer* aplikasi juga telah disesuaikan untuk menampilkan atribusi kreator).*
