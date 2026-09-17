@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { RSVPTab } from '../tabs/RSVPTab';
+import { RSVPView } from './_components/RSVPView';
 import { Loader } from '@/app/components/Loader';
 
 export default function RSVPPage() {
@@ -31,11 +31,13 @@ export default function RSVPPage() {
   if (loading) return <Loader text="Menarik Daftar Buku Tamu..." />;
 
   return (
-    <RSVPTab 
-      events={events} 
-      invitations={invitations} 
-      selectedEventId={selectedEventId} 
-      setSelectedEventId={setSelectedEventId} 
-    />
+    <div className="pb-20 animate-in fade-in duration-500">
+      <RSVPView 
+        events={events} 
+        invitations={invitations} 
+        selectedEventId={selectedEventId} 
+        setSelectedEventId={setSelectedEventId} 
+      />
+    </div>
   );
 }

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Undangan Digital Teater Dekik",
-    description: "Pementasan Teater Dekik — undangan-dekik.vercel.app",
+    description: "Pementasan Teater Dekik — undangan dekik",
     url: "https://undangan-dekik.vercel.app",
     siteName: "Teater Dekik",
     images: [
@@ -47,6 +47,8 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+import { ToastProvider } from "./components/Toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,10 +57,13 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      suppressHydrationWarning
       className={`${cinzel.variable} ${jakarta.variable} h-full antialiased dark overscroll-none`}
     >
-      <body className="min-h-full flex flex-col bg-black text-white selection:bg-neutral-800 selection:text-white overscroll-none">
-        {children}
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-black text-white selection:bg-neutral-800 selection:text-white overscroll-none">
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Katalon Studio
+katalon/bin/
+katalon/Libs/
+katalon/.settings/
+katalon/.classpath
+katalon/.project
+katalon/Reports/
+katalon/**/*.rs
+katalon/**/*.ts
+
