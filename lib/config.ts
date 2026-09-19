@@ -78,7 +78,7 @@ export const DEFAULT_TIMELINE: TimelineEventItem[] = [
   {
     year: '2026',
     title: 'Era Digital & E-Tiket Terpadu',
-    desc: 'Meluncurkan portal resmi Teater Dekik, sistem ticketing online terintegrasi, dan undangan digital eksklusif untuk para penonton setia.',
+    desc: 'Meluncurkan Teater Dekik, sistem ticketing online terintegrasi, dan undangan digital eksklusif untuk para penonton setia.',
     tag: 'Transformasi Digital',
   },
 ];

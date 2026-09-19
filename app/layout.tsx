@@ -25,7 +25,7 @@ const faviconUrl = `${assetsBase}/favicon.png?v=update`;
 const author = "Indra Wardana";
 const tagline = "Di mana cerita menemukan panggungnya.";
 const description =
-  "Masuki dunia Teater Dekik: jadwal pementasan, tiket, galeri, dan kisah di balik tirai panggung kami.";
+  "Teater Dekik: jadwal pementasan, tiket, galeri, dan kisah di balik tirai panggung kami.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

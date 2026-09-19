@@ -37,7 +37,7 @@ export default function NotFound() {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs tracking-widest uppercase mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.15)]"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-          <span>Teater Dekik • Error 404</span>
+          <span>Teater Dekik Error 404</span>
         </motion.div>
 
         {/* Big 404 Visual */}
@@ -81,7 +81,7 @@ export default function NotFound() {
 
         {/* Footer Credit */}
         <div className="mt-16 pt-8 border-t border-neutral-900 text-neutral-600 text-xs">
-          Undangan Digital Pementasan Teater Dekik
+          Teater Dekik
         </div>
       </motion.div>
     </div>
