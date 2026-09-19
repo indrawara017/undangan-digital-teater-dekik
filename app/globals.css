@@ -1,24 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Public theme: dark stage with theatre-gold as the single brand accent. */
+  --app-page: #09090b;
+  --app-surface: #171717;
+  --app-surface-raised: #262626;
+  --app-content: #fafafa;
+  --app-content-muted: #a3a3a3;
+  --app-line: #404040;
+  --app-primary: #fbbf24;
+  --app-primary-strong: #f59e0b;
+  --app-primary-soft: rgba(251, 191, 36, 0.14);
+  --app-primary-foreground: #1c1917;
+  --background: var(--app-page);
+  --foreground: var(--app-content);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-page: var(--app-page);
+  --color-surface: var(--app-surface);
+  --color-surface-raised: var(--app-surface-raised);
+  --color-content: var(--app-content);
+  --color-content-muted: var(--app-content-muted);
+  --color-line: var(--app-line);
+  --color-primary: var(--app-primary);
+  --color-primary-strong: var(--app-primary-strong);
+  --color-primary-soft: var(--app-primary-soft);
+  --color-primary-foreground: var(--app-primary-foreground);
   --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
   --font-cormorant: var(--font-cinzel);
   --font-inter: var(--font-jakarta);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 html {

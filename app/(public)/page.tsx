@@ -13,7 +13,7 @@ export const metadata = {
 export default async function HomePage() {
   const { data: events } = await supabase
     .from('events')
-    .select('*')
+    .select('*, ticket_tiers ( available_quota )')
     .order('date', { ascending: true });
 
   const config = await getGlobalConfig();
@@ -60,6 +60,7 @@ export default async function HomePage() {
       sponsors={sponsors}
       sponsorLogos={sponsors.map(s => s.url)}
       merchandise={merchandise || []}
+      referenceTime={Date.now()}
     />
   );
 }

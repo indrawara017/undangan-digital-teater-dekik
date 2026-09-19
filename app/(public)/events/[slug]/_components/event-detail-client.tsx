@@ -331,7 +331,7 @@ export function EventDetailClient({
                     onClick={() => setIsCastModalOpen(true)}
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-neutral-300 hover:text-white text-xs font-semibold transition-all group"
                   >
-                    <Search className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+                    <Search className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
                     <span>Cari & Lihat Semua ({castList.length})</span>
                   </button>
                 </div>
@@ -344,7 +344,7 @@ export function EventDetailClient({
                 <div
                   key={`${member.id}-${idx}`}
                   onClick={() => member.photoUrl && setZoomedImage(member.photoUrl)}
-                  className="group relative bg-gradient-to-b from-neutral-900/60 to-neutral-950/90 border border-neutral-800/80 hover:border-amber-500/50 rounded-2xl p-2.5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between cursor-pointer"
+                    className="group relative bg-gradient-to-b from-neutral-900/60 to-neutral-950/90 border border-neutral-800/80 hover:border-primary/50 rounded-2xl p-2.5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between cursor-pointer"
                 >
                   {/* Photo Container - 3/4 Portrait */}
                   <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-neutral-900 mb-2.5">
@@ -374,11 +374,11 @@ export function EventDetailClient({
 
                   {/* Name and Role */}
                   <div className="text-center min-w-0 w-full">
-                    <p className="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-amber-200 transition-colors">
+                    <p className="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-primary transition-colors">
                       {member.name}
                     </p>
                     <div className="mt-1">
-                      <span className="inline-block px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-medium tracking-wide uppercase truncate max-w-full">
+                      <span className="inline-block px-2 py-0.5 rounded-md bg-primary-soft border border-primary/30 text-primary text-[10px] font-medium tracking-wide uppercase truncate max-w-full">
                         {member.role || 'Pemeran'}
                       </span>
                     </div>
@@ -395,7 +395,7 @@ export function EventDetailClient({
                   onClick={() => setIsCastModalOpen(true)}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-white text-xs font-semibold tracking-wider uppercase transition-all"
                 >
-                  <Users className="w-3.5 h-3.5 text-amber-400" />
+                  <Users className="w-3.5 h-3.5 text-primary" />
                   <span>Lihat {castList.length - 12} Seniman Lainnya</span>
                 </button>
               </div>
@@ -530,7 +530,7 @@ export function EventDetailClient({
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-8">
               <div>
-                <p className="text-xs font-mono tracking-[0.3em] text-pink-400 uppercase mb-1">
+                <p className="text-xs font-mono tracking-[0.3em] text-primary uppercase mb-1">
                   Official Merchandise
                 </p>
                 <h2 className="font-cinzel text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -571,7 +571,7 @@ export function EventDetailClient({
 
                   <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
+                      <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-1">
                         {item.name}
                       </h3>
                       {item.description && (
@@ -713,7 +713,7 @@ export function EventDetailClient({
                       placeholder="Cari nama aktor, aktris, atau peran (contoh: Sutradara, Pemeran Utama)..."
                       value={castSearch}
                       onChange={(e) => setCastSearch(e.target.value)}
-                      className="w-full pl-10 pr-10 py-2.5 bg-black/40 border border-neutral-800 rounded-xl text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-amber-500/60"
+                      className="w-full pl-10 pr-10 py-2.5 bg-black/40 border border-neutral-800 rounded-xl text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-primary/70"
                       autoFocus
                     />
                     {castSearch && (
@@ -740,7 +740,7 @@ export function EventDetailClient({
                         <div
                           key={`modal-${member.id}-${idx}`}
                           onClick={() => member.photoUrl && setZoomedImage(member.photoUrl)}
-                          className="bg-neutral-900/60 border border-neutral-800 hover:border-amber-500/50 rounded-xl p-2 cursor-pointer transition-all hover:bg-neutral-900 flex flex-col justify-between"
+                          className="bg-neutral-900/60 border border-neutral-800 hover:border-primary/50 rounded-xl p-2 cursor-pointer transition-all hover:bg-neutral-900 flex flex-col justify-between"
                         >
                           <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-neutral-950 mb-2">
                             {member.photoUrl ? (
@@ -759,7 +759,7 @@ export function EventDetailClient({
                             <p className="text-xs font-semibold text-white truncate">
                               {member.name}
                             </p>
-                            <p className="text-[10px] text-amber-300 uppercase tracking-wider truncate mt-0.5">
+                            <p className="text-[10px] text-primary uppercase tracking-wider truncate mt-0.5">
                               {member.role || 'Pemeran'}
                             </p>
                           </div>

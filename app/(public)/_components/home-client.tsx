@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Calendar, MapPin, Ticket, Users, Sparkles, ShoppingBag } from 'lucide-react';
 import { getEventPosterUrl, getEventSlug, getMerchandiseImageUrl } from '@/lib/assets';
+import { isPublicEventReadyToOrder, isPublicEventUpcoming, orderPublicEvents } from '@/lib/public-events';
 
 export interface SponsorItem {
   name: string;
@@ -17,6 +18,7 @@ interface HomeClientProps {
   sponsorLogos?: string[];
   sponsors?: SponsorItem[];
   merchandise?: any[];
+  referenceTime: number;
 }
 
 function formatDate(dateStr: string) {
@@ -38,16 +40,6 @@ function formatPrice(price: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
 }
 
-// Determine if event is upcoming
-function isUpcoming(dateStr: string) {
-  if (!dateStr) return true;
-  try {
-    return new Date(dateStr).getTime() > Date.now() - 86400000; // within 1 day margin
-  } catch {
-    return true;
-  }
-}
-
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
@@ -57,9 +49,11 @@ const fadeUp = {
   }),
 };
 
-export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], merchandise = [] }: HomeClientProps) {
-  const upcomingEvents = events.filter(e => isUpcoming(e.date));
-  const featuredEvent = upcomingEvents[0] || events[0];
+export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], merchandise = [], referenceTime }: HomeClientProps) {
+  const orderedEvents = orderPublicEvents(events, referenceTime);
+  const featuredEvent = orderedEvents[0];
+  const featuredEventReadyToOrder = featuredEvent && isPublicEventReadyToOrder(featuredEvent, referenceTime);
+  const featuredEventUpcoming = featuredEvent && isPublicEventUpcoming(featuredEvent, referenceTime);
 
   const sponsorList: SponsorItem[] = (sponsors && sponsors.length > 0)
     ? sponsors
@@ -77,7 +71,7 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neutral-900/30 rounded-full blur-[200px]" />
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-amber-950/10 rounded-full blur-[150px]" />
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary-soft rounded-full blur-[150px]" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
@@ -97,9 +91,15 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
             <motion.h1
               custom={1}
               variants={fadeUp}
-              className="font-cinzel text-4xl sm:text-5xl md:text-7xl font-bold text-white tracking-tight leading-[1.05]"
+              className="flex items-center justify-center gap-3 sm:gap-4 font-cinzel text-4xl sm:text-5xl md:text-7xl font-bold text-white tracking-tight leading-[1.05]"
             >
-              Teater Dekik
+              <img
+                src="/logo.png"
+                alt=""
+                aria-hidden="true"
+                className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full object-cover shrink-0"
+              />
+              <span>Teater Dekik</span>
             </motion.h1>
 
             <motion.p
@@ -118,16 +118,16 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
             >
               <Link
                 href="/events"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-white text-black text-xs sm:text-sm font-semibold hover:bg-neutral-200 transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(255,255,255,0.08)]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary-strong transition-all active:scale-[0.97] shadow-[0_0_20px_rgba(251,191,36,0.16)]"
               >
                 <Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Jadwal & Tiket</span>
               </Link>
               <Link
                 href="/merchandise"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-neutral-900/90 border border-neutral-700/80 hover:border-pink-500/40 text-neutral-200 hover:text-white text-xs sm:text-sm font-medium transition-all active:scale-[0.97]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-neutral-900/90 border border-neutral-700/80 hover:border-primary/50 text-neutral-200 hover:text-white text-xs sm:text-sm font-medium transition-all active:scale-[0.97]"
               >
-                <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400" />
+                <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 <span>Merchandise</span>
               </Link>
               <Link
@@ -167,8 +167,12 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
               transition={{ duration: 0.6 }}
               className="text-center mb-8 sm:mb-10"
             >
-              <p className="text-xs font-mono tracking-[0.3em] text-amber-500/70 uppercase mb-3">
-                Pementasan Terdekat
+              <p className="text-xs font-mono tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {featuredEventReadyToOrder
+                  ? 'Tiket Tersedia'
+                  : featuredEventUpcoming
+                    ? 'Pementasan Mendatang'
+                    : 'Pementasan Terakhir'}
               </p>
               <h2 className="font-cinzel text-3xl sm:text-4xl font-bold text-white tracking-tight">
                 {featuredEvent.title}
@@ -229,7 +233,13 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
                         </div>
                         <div>
                           <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Tiket</p>
-                          <p className="text-sm text-white font-medium">Tersedia Online</p>
+                          <p className="text-sm text-white font-medium">
+                            {featuredEventReadyToOrder
+                              ? 'Siap dipesan'
+                              : featuredEventUpcoming
+                                ? 'Segera tersedia'
+                                : 'Pementasan selesai'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -247,7 +257,7 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
                       className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-white text-black text-xs sm:text-sm font-semibold hover:bg-neutral-200 transition-all active:scale-[0.97]"
                     >
                       <Ticket className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span>Pesan Tiket</span>
+                      <span>{featuredEventReadyToOrder ? 'Pesan Tiket' : 'Lihat Pementasan'}</span>
                     </Link>
                     <Link
                       href={`/events/${getEventSlug(featuredEvent.title)}`}
@@ -434,11 +444,11 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
 
                   <div className="p-3 sm:p-4 flex flex-col justify-between flex-1">
                     <div>
-                      <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1">
+                      <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-primary transition-colors line-clamp-2 sm:line-clamp-1">
                         {item.name}
                       </h3>
                       {item.events?.title && (
-                        <p className="text-[10px] text-amber-400/80 mt-0.5 truncate">
+                        <p className="text-[10px] text-primary/80 mt-0.5 truncate">
                           🎭 {item.events.title}
                         </p>
                       )}
@@ -464,7 +474,7 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
       {/* ===== CTA SECTION ===== */}
       <section className="relative py-20 sm:py-28">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-950/10 rounded-full blur-[180px]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary-soft rounded-full blur-[180px]" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -485,7 +495,7 @@ export function HomeClient({ events, config, sponsorLogos = [], sponsors = [], m
                 href={`https://wa.me/${config.whatsapp || ''}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:px-7 sm:py-3 rounded-xl bg-white text-black text-xs sm:text-sm font-semibold hover:bg-neutral-200 transition-all active:scale-[0.97]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 sm:px-7 sm:py-3 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary-strong transition-all active:scale-[0.97]"
               >
                 Hubungi via WhatsApp
               </a>

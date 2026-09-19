@@ -131,12 +131,12 @@ export function TentangClient({ members, timelineEvents }: TentangClientProps) {
                   >
                     {/* Node Titik Poros Tengah (Desktop) */}
                     <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 items-center justify-center">
-                      <div className="w-3.5 h-3.5 rounded-full bg-neutral-900 border-2 border-neutral-600 group-hover:border-amber-400 group-hover:bg-amber-500/20 group-hover:scale-125 transition-all duration-300 ring-4 ring-neutral-950 shadow-[0_0_12px_rgba(245,158,11,0.25)]" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-neutral-900 border-2 border-neutral-600 group-hover:border-primary group-hover:bg-primary-soft group-hover:scale-125 transition-all duration-300 ring-4 ring-neutral-950 shadow-[0_0_12px_rgba(251,191,36,0.25)]" />
                     </div>
 
                     {/* Node Titik Poros Kiri (Mobile) */}
                     <div className="md:hidden absolute left-4 top-8 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-neutral-900 border-2 border-amber-400 ring-4 ring-neutral-950 shadow-[0_0_8px_rgba(245,158,11,0.3)]" />
+                      <div className="w-3 h-3 rounded-full bg-neutral-900 border-2 border-primary ring-4 ring-neutral-950 shadow-[0_0_8px_rgba(251,191,36,0.3)]" />
                     </div>
 
                     {/* Garis Horizontal Pendek (Mobile) */}
@@ -147,12 +147,12 @@ export function TentangClient({ members, timelineEvents }: TentangClientProps) {
                       <div className="w-full md:w-1/2 pl-10 md:pl-0 md:pr-10">
                         <div className="relative">
                           {/* Garis Horizontal Pendek Penghubung Node ke Kotak (Desktop Sisi Kiri) */}
-                          <div className="hidden md:block absolute -right-10 top-1/2 w-10 h-px bg-neutral-700 -translate-y-1/2 group-hover:bg-amber-500/50 transition-colors" />
+                          <div className="hidden md:block absolute -right-10 top-1/2 w-10 h-px bg-neutral-700 -translate-y-1/2 group-hover:bg-primary/50 transition-colors" />
 
-                          <div className="bg-gradient-to-b from-neutral-900/60 to-neutral-950/80 border border-neutral-800/80 hover:border-neutral-700/80 group-hover:border-amber-500/40 rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/40 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-0.5">
+                          <div className="bg-gradient-to-b from-neutral-900/60 to-neutral-950/80 border border-neutral-800/80 hover:border-neutral-700/80 group-hover:border-primary/50 rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/40 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-0.5">
                             {/* Label Tahun dengan Huruf Tebal & Tag */}
                             <div className="flex items-center justify-between gap-3 mb-2.5">
-                              <span className="font-cinzel text-xl sm:text-2xl font-bold text-amber-400 tracking-tight">
+                              <span className="font-cinzel text-xl sm:text-2xl font-bold text-primary tracking-tight">
                                 {item.year}
                               </span>
                               {item.tag && (
@@ -163,7 +163,7 @@ export function TentangClient({ members, timelineEvents }: TentangClientProps) {
                             </div>
 
                             {/* Judul Peristiwa */}
-                            <h3 className="text-sm sm:text-base font-semibold text-white mb-2 group-hover:text-amber-200 transition-colors">
+                            <h3 className="text-sm sm:text-base font-semibold text-white mb-2 group-hover:text-primary transition-colors">
                               {item.title}
                             </h3>
 
@@ -183,12 +183,12 @@ export function TentangClient({ members, timelineEvents }: TentangClientProps) {
                       <div className="w-full md:w-1/2 pl-10 md:pl-10">
                         <div className="relative">
                           {/* Garis Horizontal Pendek Penghubung Node ke Kotak (Desktop Sisi Kanan) */}
-                          <div className="hidden md:block absolute -left-10 top-1/2 w-10 h-px bg-neutral-700 -translate-y-1/2 group-hover:bg-amber-500/50 transition-colors" />
+                          <div className="hidden md:block absolute -left-10 top-1/2 w-10 h-px bg-neutral-700 -translate-y-1/2 group-hover:bg-primary/50 transition-colors" />
 
-                          <div className="bg-gradient-to-b from-neutral-900/60 to-neutral-950/80 border border-neutral-800/80 hover:border-neutral-700/80 group-hover:border-amber-500/40 rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/40 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-0.5">
+                          <div className="bg-gradient-to-b from-neutral-900/60 to-neutral-950/80 border border-neutral-800/80 hover:border-neutral-700/80 group-hover:border-primary/50 rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/40 backdrop-blur-sm transition-all duration-300 group-hover:-translate-y-0.5">
                             {/* Label Tahun dengan Huruf Tebal & Tag */}
                             <div className="flex items-center justify-between gap-3 mb-2.5">
-                              <span className="font-cinzel text-xl sm:text-2xl font-bold text-amber-400 tracking-tight">
+                              <span className="font-cinzel text-xl sm:text-2xl font-bold text-primary tracking-tight">
                                 {item.year}
                               </span>
                               {item.tag && (
@@ -199,7 +199,7 @@ export function TentangClient({ members, timelineEvents }: TentangClientProps) {
                             </div>
 
                             {/* Judul Peristiwa */}
-                            <h3 className="text-sm sm:text-base font-semibold text-white mb-2 group-hover:text-amber-200 transition-colors">
+                            <h3 className="text-sm sm:text-base font-semibold text-white mb-2 group-hover:text-primary transition-colors">
                               {item.title}
                             </h3>
 

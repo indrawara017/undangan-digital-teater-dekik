@@ -46,8 +46,8 @@ const statusConfig = {
   pending: {
     icon: Clock,
     label: 'Menunggu Pembayaran',
-    color: 'text-amber-400',
-    bg: 'bg-amber-400/10 border-amber-400/20',
+    color: 'text-primary',
+    bg: 'bg-primary-soft border-primary/30',
   },
   paid: {
     icon: CheckCircle2,
@@ -164,7 +164,7 @@ export function OrderStatusClient({ order, tickets, config }: OrderStatusClientP
               {isPending && (
                 <div className="flex justify-between">
                   <span className="text-neutral-500">Batas Bayar</span>
-                  <span className="text-amber-400 text-xs font-medium">{timeRemaining(order.expires_at)}</span>
+                  <span className="text-primary text-xs font-medium">{timeRemaining(order.expires_at)}</span>
                 </div>
               )}
             </div>

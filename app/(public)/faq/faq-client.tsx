@@ -163,7 +163,7 @@ export function FAQClient({ config }: FAQClientProps) {
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-2 bg-neutral-950/60 border border-neutral-800/60 rounded-2xl p-5 hover:border-neutral-700/80 transition-all"
             >
-              <Instagram className="w-5 h-5 text-pink-400" />
+              <Instagram className="w-5 h-5 text-primary" />
               <span className="text-sm text-white font-medium">Instagram</span>
               <span className="text-xs text-neutral-500">@{igHandle}</span>
             </a>

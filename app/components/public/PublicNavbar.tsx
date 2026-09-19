@@ -23,7 +23,7 @@ export function PublicNavbar() {
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-xl border-b border-white/[0.06]" />
+        <div className="absolute inset-0 bg-page/85 backdrop-blur-xl border-b border-line/70" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -53,7 +53,7 @@ export function PublicNavbar() {
                     href={link.href}
                     className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all ${
                       isActive
-                        ? 'text-white bg-white/[0.08]'
+                        ? 'text-primary bg-primary-soft'
                         : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
@@ -67,7 +67,7 @@ export function PublicNavbar() {
             <div className="flex items-center gap-2.5">
               <Link
                 href="/events"
-                className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-[13px] font-semibold hover:bg-neutral-200 transition-all active:scale-[0.97]"
+                className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary-strong transition-all active:scale-[0.97]"
               >
                 <Ticket className="w-3.5 h-3.5" />
                 Beli Tiket
@@ -100,7 +100,7 @@ export function PublicNavbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 bg-black/95 backdrop-blur-2xl border-b border-white/[0.08] md:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain shadow-2xl"
+            className="fixed inset-x-0 top-16 z-40 bg-page/95 backdrop-blur-2xl border-b border-line/70 md:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain shadow-2xl"
           >
             <div className="px-4 py-4 flex flex-col gap-1">
               {navLinks.map((link) => {
@@ -113,7 +113,7 @@ export function PublicNavbar() {
                     onClick={() => setMobileOpen(false)}
                     className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       isActive
-                        ? 'text-white bg-white/[0.08]'
+                        ? 'text-primary bg-primary-soft'
                         : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
@@ -125,7 +125,7 @@ export function PublicNavbar() {
                 <Link
                   href="/events"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-black text-sm font-semibold active:scale-[0.97] transition-all"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-strong active:scale-[0.97] transition-all"
                 >
                   <Ticket className="w-4 h-4" />
                   Beli Tiket
