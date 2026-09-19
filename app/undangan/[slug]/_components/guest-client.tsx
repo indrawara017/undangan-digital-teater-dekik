@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FloatingAudioPlayer } from '../../components/FloatingAudioPlayer';
+import { FloatingAudioPlayer } from '@/app/components/FloatingAudioPlayer';
 
 import {
   TeaterSubtleTypingLoader,

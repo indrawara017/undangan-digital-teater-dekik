@@ -26,14 +26,32 @@ export default function AnggotaPage() {
   const fetchMasterCast = async () => {
     setLoading(true);
     try {
-      const { data: masterData } = await supabase.storage.from('assets').download('global/cast_members.json');
       let loadedMaster: CastMember[] = [];
-      if (masterData) {
-        try {
-          const text = await masterData.text();
-          const parsed = JSON.parse(text);
-          loadedMaster = parsed.map((m: any) => ({ id: m.id, name: m.name, photoUrl: m.photoUrl }));
-        } catch (e) { }
+      const { data: dbMembers } = await supabase.from('members').select('*').order('name', { ascending: true });
+      if (dbMembers && dbMembers.length > 0) {
+        loadedMaster = dbMembers.map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          photoUrl: m.photo_url || ''
+        }));
+      } else {
+        const { data: masterData } = await supabase.storage.from('assets').download('global/cast_members.json');
+        if (masterData) {
+          try {
+            const text = await masterData.text();
+            const parsed = JSON.parse(text);
+            loadedMaster = parsed.map((m: any) => ({ id: m.id, name: m.name, photoUrl: m.photoUrl }));
+            // Auto-sync into members table so both stay identical
+            for (const item of loadedMaster) {
+              await supabase.from('members').upsert({
+                id: item.id,
+                name: item.name,
+                photo_url: item.photoUrl,
+                position: 'Anggota Teater Dekik'
+              });
+            }
+          } catch (e) { }
+        }
       }
       setMasterCast(loadedMaster);
     } catch (err) {
@@ -99,6 +117,19 @@ export default function AnggotaPage() {
         photoUrl: photoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop'
       };
 
+      // 1. Sync ke tabel database members
+      try {
+        await supabase.from('members').upsert({
+          id: memberId,
+          name: updatedMember.name,
+          photo_url: updatedMember.photoUrl,
+          position: 'Anggota Teater Dekik'
+        });
+      } catch (dbErr) {
+        console.warn('DB members upsert notice:', dbErr);
+      }
+
+      // 2. Sync ke JSON storage
       let newMasterList: CastMember[] = [];
       if (editingMember) {
         newMasterList = masterCast.map(m => (m.id === editingMember.id ? updatedMember : m));
@@ -121,6 +152,12 @@ export default function AnggotaPage() {
   const handleDeleteMember = async (id: string) => {
     if (!confirm('Hapus anggota ini dari Database Master?')) return;
 
+    // 1. Hapus dari tabel database members
+    try {
+      await supabase.from('members').delete().eq('id', id);
+    } catch (e) {}
+
+    // 2. Hapus dari JSON storage
     const newMasterList = masterCast.filter(m => m.id !== id);
     const jsonBlob = new Blob([JSON.stringify(newMasterList, null, 2)], { type: 'application/json' });
     await supabase.storage.from('assets').upload('global/cast_members.json', jsonBlob, { upsert: true });

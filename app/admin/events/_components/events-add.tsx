@@ -11,7 +11,7 @@ import { CustomSelect } from '@/app/components/CustomSelect';
 interface EventsAddProps {
   isOpen: boolean;
   onClose: () => void;
-  eventForm: { title: string; creator: string; date: string; location: string; description: string; gmaps_url: string };
+  eventForm: { title: string; creator: string; date: string; location: string; description: string; gmaps_url: string; youtube_url?: string; spotify_url?: string };
   setEventForm: (form: any) => void;
   isEditing: boolean;
   onSave: (e: React.FormEvent) => void;
@@ -176,6 +176,32 @@ export function EventsAdd({ isOpen, onClose, eventForm, setEventForm, isEditing,
               />
               <p className="text-[10px] text-neutral-500">
                 Buka Google Maps &gt; Bagikan &gt; Sematkan Peta (Embed a map) &gt; Salin HTML. Anda bisa langsung mem-paste kode HTML tersebut di sini.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm text-neutral-400 font-medium block">Link Rekaman YouTube (Opsional)</label>
+              <Input 
+                type="url" 
+                placeholder="https://www.youtube.com/watch?v=... atau https://youtu.be/..." 
+                value={eventForm.youtube_url || ''} 
+                onChange={e => setEventForm({...eventForm, youtube_url: e.target.value})} 
+              />
+              <p className="text-[10px] text-neutral-500">
+                Untuk pementasan yang sudah selesai, masukkan link video YouTube agar pengunjung dapat menyaksikan rekaman penampilannya.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm text-neutral-400 font-medium block">Link Album / Soundtrack Spotify (Opsional)</label>
+              <Input 
+                type="url" 
+                placeholder="https://open.spotify.com/album/... atau track/..." 
+                value={eventForm.spotify_url || ''} 
+                onChange={e => setEventForm({...eventForm, spotify_url: e.target.value})} 
+              />
+              <p className="text-[10px] text-neutral-500">
+                Masukkan tautan album, lagu tema, atau playlist Spotify resmi untuk pementasan ini agar penonton dapat mendengarkan lagu temanya.
               </p>
             </div>
 

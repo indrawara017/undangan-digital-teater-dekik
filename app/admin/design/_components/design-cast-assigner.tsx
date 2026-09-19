@@ -46,14 +46,21 @@ export function DesignCastAssigner({ eventId }: { eventId: string }) {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch master list
-      const { data: masterData } = await supabase.storage.from('assets').download('global/cast_members.json');
-      if (masterData) {
-        try {
-          const parsed = JSON.parse(await masterData.text());
-          setMasterCast(parsed.map((m: any) => ({ id: m.id, name: m.name, photoUrl: m.photoUrl })));
-        } catch (e) {}
+      // Fetch master list from members table with storage fallback
+      let loadedMaster: CastMember[] = [];
+      const { data: dbMembers } = await supabase.from('members').select('*').order('name', { ascending: true });
+      if (dbMembers && dbMembers.length > 0) {
+        loadedMaster = dbMembers.map((m: any) => ({ id: m.id, name: m.name, photoUrl: m.photo_url || '' }));
+      } else {
+        const { data: masterData } = await supabase.storage.from('assets').download('global/cast_members.json');
+        if (masterData) {
+          try {
+            const parsed = JSON.parse(await masterData.text());
+            loadedMaster = parsed.map((m: any) => ({ id: m.id, name: m.name, photoUrl: m.photoUrl }));
+          } catch (e) {}
+        }
       }
+      setMasterCast(loadedMaster);
 
       // Fetch event-specific cast
       const { data: eventData } = await supabase.storage.from('assets').download(`${eventId}/event_cast.json`);

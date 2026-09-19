@@ -23,8 +23,11 @@ export function Navbar({ onLogout }: NavbarProps) {
   }, []);
 
   const menus = [
-    { href: '/admin/guests', label: 'Tamu' },
     { href: '/admin/events', label: 'Panggung' },
+    { href: '/admin/tickets', label: 'Tiket' },
+    { href: '/admin/orders', label: 'Pesanan' },
+    { href: '/admin/merchandise', label: 'Merch' },
+    { href: '/admin/guests', label: 'Tamu' },
     { href: '/admin/design', label: 'Visual' },
     { href: '/admin/distribution', label: 'Kirim' },
     { href: '/admin/rsvp', label: 'RSVP' },

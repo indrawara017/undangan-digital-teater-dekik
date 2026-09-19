@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Power, UploadCloud } from 'lucide-react';
 import { useToast } from '@/app/components/Toast';
+import { getSpotifyEmbedUrl } from '@/lib/assets';
 
 interface DesignAudioAssetsProps {
   selectedEvent: any;
@@ -13,10 +14,36 @@ interface DesignAudioAssetsProps {
 export function DesignAudioAssets({ selectedEvent, fetchData }: DesignAudioAssetsProps) {
   const [uploadingAudio, setUploadingAudio] = useState<boolean>(false);
   const [cacheBust, setCacheBust] = useState<number>(Date.now());
+  const [spotifyInput, setSpotifyInput] = useState<string>(selectedEvent?.spotify_url || '');
+  const [savingSpotify, setSavingSpotify] = useState<boolean>(false);
   const { showToast } = useToast();
   
   const selectedEventId = selectedEvent?.id;
   const isAudioEnabled = selectedEvent?.is_audio_enabled !== false;
+
+  useEffect(() => {
+    setSpotifyInput(selectedEvent?.spotify_url || '');
+  }, [selectedEvent?.id, selectedEvent?.spotify_url]);
+
+  const spotifyEmbed = getSpotifyEmbedUrl(spotifyInput);
+
+  const handleSaveSpotify = async () => {
+    if (!selectedEventId) return;
+    setSavingSpotify(true);
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ spotify_url: spotifyInput.trim() || null })
+        .eq('id', selectedEventId);
+      if (error) throw error;
+      showToast('Tautan Spotify pementasan berhasil disimpan!', 'success');
+      fetchData();
+    } catch (err: any) {
+      showToast('Gagal menyimpan Spotify: ' + err.message, 'error');
+    } finally {
+      setSavingSpotify(false);
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,10 +142,54 @@ export function DesignAudioAssets({ selectedEvent, fetchData }: DesignAudioAsset
           ) : (
             <>
               <UploadCloud className="w-4 h-4 text-neutral-400" />
-              <span>Ganti Audio</span>
+              <span>Ganti Audio MP3</span>
             </>
           )}
         </label>
+      </div>
+
+      {/* Spotify Album / OST Section */}
+      <div className="w-full pt-3 mt-1 border-t border-neutral-800/80 flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div>
+            <span className="text-xs font-semibold text-white tracking-wide">Album / Soundtrack Spotify Pementasan</span>
+            <p className="text-[10px] text-neutral-400">
+              Tautkan album, lagu tema, atau playlist Spotify resmi untuk diputar langsung di halaman detail pementasan.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="url"
+            placeholder="https://open.spotify.com/album/... atau track/..."
+            value={spotifyInput}
+            onChange={(e) => setSpotifyInput(e.target.value)}
+            className="flex-1 h-9 px-3 bg-black/40 border border-neutral-800 rounded-xl text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-white/30"
+          />
+          <button
+            type="button"
+            onClick={handleSaveSpotify}
+            disabled={savingSpotify}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 shrink-0"
+          >
+            {savingSpotify ? 'Menyimpan...' : 'Simpan Spotify'}
+          </button>
+        </div>
+
+        {spotifyEmbed && (
+          <div className="mt-1 rounded-xl overflow-hidden border border-neutral-800 bg-black/30">
+            <iframe
+              src={spotifyEmbed}
+              width="100%"
+              height="80"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="rounded-xl"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

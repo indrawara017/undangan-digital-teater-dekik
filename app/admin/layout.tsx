@@ -9,6 +9,7 @@ import { FullScreenLoader } from '@/app/components/Loader';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
   const checkSession = async () => {
@@ -22,18 +23,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (!loading && !session) {
+    if (!loading && !session && !isLoggingOut) {
       router.replace('/login');
     }
-  }, [loading, router, session]);
+  }, [loading, router, session, isLoggingOut]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error('Sign out error:', e);
+    }
     setSession(null);
-    router.replace('/login');
+    window.location.href = '/';
   };
 
-  if (loading) return <FullScreenLoader text="Mempersiapkan Akses Admin..." />;
+  if (loading || isLoggingOut) {
+    return <FullScreenLoader text={isLoggingOut ? "Keluar dari sistem..." : "Mempersiapkan Akses Admin..."} />;
+  }
 
   if (!session) {
     return <FullScreenLoader text="Mengarahkan ke halaman login..." />;

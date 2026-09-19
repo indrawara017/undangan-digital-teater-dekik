@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { getEventSlug } from '@/lib/assets';
 import GuestClient from './_components/guest-client';
 import { Metadata } from 'next';
 
@@ -113,10 +114,7 @@ export default async function GuestPage({ params, searchParams }: Props) {
   if (eventSlugPart) {
     const { data: events } = await supabase.from('events').select('*');
     if (events) {
-      const targetEvent = events.find(e => {
-        const eSlug = e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-        return eSlug === eventSlugPart;
-      });
+      const targetEvent = events.find(e => getEventSlug(e.title) === eventSlugPart);
       if (targetEvent) targetEventId = targetEvent.id;
     }
   }

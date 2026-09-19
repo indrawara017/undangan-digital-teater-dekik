@@ -10,7 +10,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   
   // State from EventsView
-  const [eventForm, setEventForm] = useState({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '' });
+  const [eventForm, setEventForm] = useState({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '', youtube_url: '', spotify_url: '' });
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,7 +33,7 @@ export default function EventsPage() {
       if (error) alert(error.message);
       else { 
         setEditingEvent(null); 
-        setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '' }); 
+        setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '', youtube_url: '', spotify_url: '' }); 
         setIsModalOpen(false);
         fetchData(); 
       }
@@ -41,7 +41,7 @@ export default function EventsPage() {
       const { error } = await supabase.from('events').insert([eventForm]);
       if (error) alert(error.message);
       else { 
-        setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '' }); 
+        setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '', youtube_url: '', spotify_url: '' }); 
         setIsModalOpen(false);
         fetchData(); 
       }
@@ -56,7 +56,7 @@ export default function EventsPage() {
 
   const openAddModal = () => {
     setEditingEvent(null);
-    setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '' });
+    setEventForm({ title: '', creator: '', date: '', location: '', description: '', gmaps_url: '', youtube_url: '', spotify_url: '' });
     setIsModalOpen(true);
   };
 
@@ -68,7 +68,9 @@ export default function EventsPage() {
       date: ev.date || '',
       location: ev.location || '',
       description: ev.description || '',
-      gmaps_url: ev.gmaps_url || ''
+      gmaps_url: ev.gmaps_url || '',
+      youtube_url: ev.youtube_url || '',
+      spotify_url: ev.spotify_url || '',
     });
     setIsModalOpen(true);
   };

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { getEventSlug } from '@/lib/assets';
 import { Loader } from '@/app/components/Loader';
 import { CustomSelect } from '@/app/components/CustomSelect';
 import { Circle } from 'lucide-react';
@@ -52,16 +53,16 @@ export default function DistributionPage() {
     return true;
   };
 
-  const getEventSlug = () => {
+  const getEventSlugLocal = () => {
     const ev = events.find(e => e.id === selectedEventId);
     if (!ev) return '';
-    return ev.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    return getEventSlug(ev.title);
   };
 
   const handleCopyLink = async (guest: any) => {
     const success = await ensureInvited(guest.id);
     if (!success) return;
-    const url = `${window.location.origin}/${guest.slug}-${getEventSlug()}`;
+    const url = `${window.location.origin}/undangan/${guest.slug}-${getEventSlugLocal()}`;
     navigator.clipboard.writeText(url);
     alert('Link berhasil disalin: ' + url);
   };
@@ -70,7 +71,7 @@ export default function DistributionPage() {
     if (!guest.whatsapp) return alert('Nomor WhatsApp tamu ini belum diisi.');
     const success = await ensureInvited(guest.id);
     if (!success) return;
-    const url = `${window.location.origin}/${guest.slug}-${getEventSlug()}`;
+    const url = `${window.location.origin}/undangan/${guest.slug}-${getEventSlugLocal()}`;
     
     let text = '';
     

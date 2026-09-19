@@ -55,7 +55,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="bg-neutral-950/60 border border-neutral-800 rounded-3xl shadow-3xl overflow-hidden backdrop-blur-md"
       >
-        <div className="p-6 md:p-8">
+        <div className="p-5 sm:p-8">
           <div className="text-center mb-6 space-y-1.5">
             <h1 className="text-xl font-semibold text-white tracking-tight">Selamat Datang</h1>
             <p className="text-sm text-neutral-400">

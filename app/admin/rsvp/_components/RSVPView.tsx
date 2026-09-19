@@ -50,49 +50,141 @@ export function RSVPView({
     return matchStatus && matchSearch;
   });
 
-  const handleCheckIn = async (invitationId: string) => {
-    const targetInv = localInvitations.find(i => i.id === invitationId);
-    if (!targetInv) {
+  const handleCheckIn = async (scannedCode: string) => {
+    const trimmed = (scannedCode || '').trim();
+    if (!trimmed) {
+      return { success: false, message: 'Kode tiket kosong.' };
+    }
+
+    // 1. Check local invitations first (VIP Tamu)
+    const targetInv = localInvitations.find(i => i.id === trimmed || i.guest_id === trimmed);
+    if (targetInv) {
+      const isAlreadyCheckedIn = !!targetInv.checked_in;
+      const nowIso = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('invitations')
+        .update({ 
+          rsvp_status: 'attending', 
+          checked_in: true, 
+          checked_in_at: nowIso 
+        })
+        .eq('id', targetInv.id);
+
+      if (error) {
+        console.error('Check-in error:', error);
+        await supabase
+          .from('invitations')
+          .update({ rsvp_status: 'attending' })
+          .eq('id', targetInv.id);
+      }
+
+      setLocalInvitations(prev =>
+        prev.map(item =>
+          item.id === targetInv.id
+            ? { ...item, rsvp_status: 'attending', checked_in: true, checked_in_at: nowIso }
+            : item
+        )
+      );
+
       return {
-        success: false,
-        message: 'Tiket tidak ditemukan pada event ini.',
+        success: true,
+        alreadyCheckedIn: isAlreadyCheckedIn,
+        message: isAlreadyCheckedIn ? 'Tamu VIP sudah pernah check-in sebelumnya.' : 'Check-in VIP sukses!',
+        guestName: targetInv.guests?.name || 'Tamu VIP',
+        category: targetInv.guests?.category || 'VIP',
       };
     }
 
-    const isAlreadyCheckedIn = !!targetInv.checked_in;
-    const nowIso = new Date().toISOString();
+    // 2. Check public tickets table
+    try {
+      let ticketQuery = supabase
+        .from('tickets')
+        .select(`
+          id,
+          ticket_code,
+          qr_code_hash,
+          attendee_name,
+          is_checked_in,
+          checked_in_at,
+          order_id,
+          ticket_tier_id,
+          orders (
+            id,
+            order_number,
+            payment_status,
+            event_id
+          ),
+          ticket_tiers (
+            id,
+            name
+          )
+        `);
 
-    const { error } = await supabase
-      .from('invitations')
-      .update({ 
-        rsvp_status: 'attending', 
-        checked_in: true, 
-        checked_in_at: nowIso 
-      })
-      .eq('id', invitationId);
+      if (trimmed.startsWith('TIK-')) {
+        ticketQuery = ticketQuery.eq('ticket_code', trimmed);
+      } else {
+        ticketQuery = ticketQuery.or(`qr_code_hash.eq.${trimmed},id.eq.${trimmed},ticket_code.eq.${trimmed}`);
+      }
 
-    if (error) {
-      console.error('Check-in error:', error);
-      await supabase
-        .from('invitations')
-        .update({ rsvp_status: 'attending' })
-        .eq('id', invitationId);
+      const { data: ticketData, error: ticketErr } = await ticketQuery.maybeSingle();
+
+      if (ticketErr) {
+        console.error('Error finding ticket:', ticketErr);
+      }
+
+      if (ticketData) {
+        const order = (ticketData as any).orders;
+        const tier = (ticketData as any).ticket_tiers;
+
+        // Check if event matches (if selectedEventId is chosen)
+        if (selectedEventId && order?.event_id && order.event_id !== selectedEventId) {
+          return {
+            success: false,
+            message: 'Tiket ini terdaftar untuk pementasan lain, bukan pementasan yang sedang dipilih.',
+          };
+        }
+
+        // Check order payment status
+        if (order?.payment_status !== 'paid') {
+          return {
+            success: false,
+            message: `Pesanan tiket belum lunas (Status: ${order?.payment_status || 'Belum Lunas'}).`,
+          };
+        }
+
+        const isAlreadyCheckedIn = !!ticketData.is_checked_in;
+        const nowIso = new Date().toISOString();
+
+        if (!isAlreadyCheckedIn) {
+          const { error: updateErr } = await supabase
+            .from('tickets')
+            .update({
+              is_checked_in: true,
+              checked_in_at: nowIso,
+            })
+            .eq('id', ticketData.id);
+
+          if (updateErr) {
+            console.error('Error updating ticket check-in:', updateErr);
+          }
+        }
+
+        return {
+          success: true,
+          alreadyCheckedIn: isAlreadyCheckedIn,
+          message: isAlreadyCheckedIn ? 'Tiket sudah pernah di-scan sebelumnya.' : 'Check-in E-Tiket Berhasil!',
+          guestName: ticketData.attendee_name,
+          category: tier?.name ? `Tiket ${tier.name}` : 'E-Tiket',
+        };
+      }
+    } catch (err: any) {
+      console.error('Check ticket error:', err);
     }
 
-    setLocalInvitations(prev =>
-      prev.map(item =>
-        item.id === invitationId
-          ? { ...item, rsvp_status: 'attending', checked_in: true, checked_in_at: nowIso }
-          : item
-      )
-    );
-
     return {
-      success: true,
-      alreadyCheckedIn: isAlreadyCheckedIn,
-      message: isAlreadyCheckedIn ? 'Tamu sudah pernah check-in sebelumnya.' : 'Check-in sukses!',
-      guestName: targetInv.guests?.name || 'Tamu',
-      category: targetInv.guests?.category || 'Umum',
+      success: false,
+      message: 'Kode tiket atau QR tidak terdaftar dalam panggung ini.',
     };
   };
 

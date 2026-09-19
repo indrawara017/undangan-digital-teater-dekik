@@ -2,9 +2,9 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, X } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
-type ToastType = 'success' | 'error';
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 interface Toast {
   id: string;
@@ -39,7 +39,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {/* Toast Portal Container */}
-      <div className="fixed top-6 right-6 z-[99999] flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[99999] flex flex-col gap-2.5 w-[calc(100%-2rem)] max-w-sm pointer-events-none">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div
@@ -56,6 +56,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 className={`absolute top-0 inset-x-0 h-[2px] ${
                   toast.type === 'success' 
                     ? 'bg-gradient-to-r from-emerald-500/50 via-emerald-400 to-emerald-500/50' 
+                    : toast.type === 'warning'
+                    ? 'bg-gradient-to-r from-amber-500/50 via-amber-400 to-amber-500/50'
+                    : toast.type === 'info'
+                    ? 'bg-gradient-to-r from-blue-500/50 via-blue-400 to-blue-500/50'
                     : 'bg-gradient-to-r from-red-500/50 via-red-400 to-red-500/50'
                 }`} 
               />
@@ -64,6 +68,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 <div className="shrink-0 mt-0.5">
                   {toast.type === 'success' ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]" />
+                  ) : toast.type === 'warning' ? (
+                    <AlertTriangle className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]" />
+                  ) : toast.type === 'info' ? (
+                    <Info className="w-5 h-5 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.3)]" />
                   ) : (
                     <XCircle className="w-5 h-5 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]" />
                   )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { Edit2, Trash2, CalendarDays, MapPin, Map, MoreVertical } from 'lucide-react';
+import { Youtube } from '@/app/components/icons/SocialIcons';
 import { Button } from '@/app/components/ui/Button';
 
 interface EventsListProps {
@@ -60,6 +61,11 @@ export function EventsList({ events, onEditEvent, onDeleteEvent }: EventsListPro
                       {ev.gmaps_url && (
                         <a href={ev.gmaps_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 ml-6">
                           <Map className="w-3 h-3" /> Buka Maps
+                        </a>
+                      )}
+                      {ev.youtube_url && (
+                        <a href={ev.youtube_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-[11px] text-red-400 hover:text-red-300 ml-6">
+                          <Youtube className="w-3.5 h-3.5" /> Rekaman Video
                         </a>
                       )}
                     </div>

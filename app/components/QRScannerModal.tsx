@@ -95,7 +95,7 @@ export function QRScannerModal({ isOpen, onClose, invitations, onCheckIn }: QRSc
       if (decodedText.startsWith('{')) {
         try {
           const parsed = JSON.parse(decodedText);
-          invitationId = parsed.invId || parsed.id || decodedText;
+          invitationId = parsed.qr_hash || parsed.ticket_code || parsed.invId || parsed.id || decodedText;
         } catch (e) {
           // fallback to raw text
         }

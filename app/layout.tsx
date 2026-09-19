@@ -17,14 +17,14 @@ const jakarta = Plus_Jakarta_Sans({
 const logoUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/global/app-logo.png`;
 
 export const metadata: Metadata = {
-  title: "Undangan Digital Teater Dekik",
-  description: "Undangan Digital Teater Dekik",
+  title: "Teater Dekik — Portal Resmi",
+  description: "Portal resmi Teater Dekik. Lihat jadwal pementasan, beli tiket, dan kenali lebih dekat komunitas teater kami.",
   icons: {
     icon: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/assets/global/favicon.png?v=update`,
   },
   openGraph: {
-    title: "Undangan Digital Teater Dekik",
-    description: "Pementasan Teater Dekik — undangan dekik",
+    title: "Teater Dekik — Portal Resmi",
+    description: "Portal resmi Teater Dekik — jadwal pementasan, tiket online, galeri, dan informasi komunitas.",
     url: "https://undangan-dekik.vercel.app",
     siteName: "Teater Dekik",
     images: [
@@ -40,11 +40,10 @@ export const metadata: Metadata = {
   },
 };
 
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 import { ToastProvider } from "./components/Toast";
@@ -58,9 +57,9 @@ export default function RootLayout({
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${cinzel.variable} ${jakarta.variable} h-full antialiased dark overscroll-none`}
+      className={`${cinzel.variable} ${jakarta.variable} min-h-full antialiased dark`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col bg-black text-white selection:bg-neutral-800 selection:text-white overscroll-none">
+      <body className="min-h-full w-full bg-black text-white antialiased font-sans">
         <ToastProvider>
           {children}
         </ToastProvider>
